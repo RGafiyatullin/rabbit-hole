@@ -1,4 +1,4 @@
 #![no_std]
 
 mod schnorr_proof;
-pub use schnorr_proof::{prove, verify};
+pub use crate::schnorr_proof::{prove, verify};

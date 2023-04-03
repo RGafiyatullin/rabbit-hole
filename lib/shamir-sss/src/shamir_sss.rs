@@ -9,11 +9,7 @@ where
         let coefficients = self.as_mut();
         coefficients[0] = secret;
 
-        coefficients[1..].iter_mut().for_each(|c| {
-            let mut repr: F::Repr = Default::default();
-            rng.fill_bytes(repr.as_mut());
-            *c = PrimeField::from_repr(repr).unwrap_or(Default::default());
-        });
+        coefficients[1..].iter_mut().for_each(|c| *c = F::random(&mut rng));
     }
 }
 
@@ -24,13 +20,10 @@ where
     fn issue_share(&self, x: F) -> F {
         assert_ne!(x, F::ZERO);
 
-        let mut y = F::ZERO;
-        let mut x_to_nth = F::ONE;
-
-        for c in self.as_ref() {
-            y += x_to_nth * c;
-            x_to_nth *= x;
-        }
+        let (y, _) = self.as_ref().iter().copied().fold((F::ZERO, F::ONE), |(y, x_to_ith), c| {
+            let term = c * x_to_ith;
+            (y + term, x_to_ith * x)
+        });
 
         y
     }

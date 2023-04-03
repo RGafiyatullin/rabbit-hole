@@ -2,4 +2,4 @@
 
 mod shamir_sss;
 
-pub use shamir_sss::{LagrangeCoefficientAt, SchemeInitFromSecret, SchemeIssueShare};
+pub use crate::shamir_sss::{LagrangeCoefficientAt, SchemeInitFromSecret, SchemeIssueShare};
