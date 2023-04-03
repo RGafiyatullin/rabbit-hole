@@ -1,21 +1,18 @@
-#![cfg(test)]
-
-use std::ops::Mul;
-
 use ff::{Field, PrimeField};
 use group::Group;
-use shamir_sss::{LagrangeCoefficientAt, SchemeInitFromSecret, SchemeIssueShare};
+use rand::RngCore;
 
-fn demo<F, G>()
+use ::shamir_sss::*;
+
+use super::*;
+
+pub fn basic_impl<F, G>(mut rng: impl RngCore)
 where
     F: Field + PrimeField,
-    G: Group,
-    G: Mul<F, Output = G>,
+    G: Group<Scalar = F>,
 {
     const PARTIES: usize = 10;
     const THRESHOLD: usize = 3;
-
-    let mut rng = rand::rngs::OsRng;
 
     let g = G::generator();
 
@@ -41,11 +38,6 @@ where
 }
 
 #[test]
-fn demo_secp256k1() {
-    demo::<k256::Scalar, k256::ProjectivePoint>();
-}
-
-#[test]
-fn demo_curve25519() {
-    demo::<curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint>();
+fn basic() {
+    basic_impl::<Scalar, Point>(&mut rand::rngs::OsRng);
 }

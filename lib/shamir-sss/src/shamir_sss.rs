@@ -1,11 +1,11 @@
 use ff::{Field, PrimeField};
-use rand::{CryptoRng, RngCore};
+use rand::RngCore;
 
 pub trait SchemeInitFromSecret<F>: AsMut<[F]>
 where
     F: PrimeField,
 {
-    fn init_from_secret(&mut self, secret: F, rng: &mut (impl CryptoRng + RngCore)) {
+    fn init_from_secret(&mut self, secret: F, mut rng: impl RngCore) {
         let coefficients = self.as_mut();
         coefficients[0] = secret;
 

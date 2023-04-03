@@ -1,5 +1,5 @@
 [package]
-name = "shamir-sss-tests"
+name = "tests"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,6 +9,8 @@ edition = "2021"
 curve25519 = {workspace = true}
 ff = {workspace = true}
 group = {workspace = true}
-k256 = {workspace = true, features = ["arithmetic"]}
+k256 = {workspace = true}
 rand = {workspace = true}
+
 shamir-sss = {workspace = true}
+schnorr-proof = {workspace = true}
