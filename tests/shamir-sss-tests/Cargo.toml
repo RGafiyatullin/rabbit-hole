@@ -1,0 +1,14 @@
+[package]
+name = "shamir-sss-tests"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+curve25519 = {workspace = true}
+ff = {workspace = true}
+group = {workspace = true}
+k256 = {workspace = true, features = ["arithmetic"]}
+rand = {workspace = true}
+shamir-sss = {workspace = true}

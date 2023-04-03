@@ -1,0 +1,19 @@
+[workspace]
+members = [
+    "rabbit-hole",
+    "lib/*",
+    "tests/*",
+]
+
+[workspace.dependencies]
+curve25519-dalek = "^3"
+ff = "^0.13"
+group = "^0.13"
+rand = "^0.8"
+subtle = "^2.5"
+zeroize = "^1.6"
+
+k256 = {version = "^0.13", default-features = false, features = []}
+
+curve25519 = {git = "https://github.com/str4d/curve25519-dalek.git", package = "curve25519-dalek", branch = "ff", default-features = false, features = ["group"]}
+shamir-sss = {path = "lib/shamir-sss", package = "rabbit-hole-shamir-sss"}
