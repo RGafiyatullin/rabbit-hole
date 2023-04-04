@@ -2,6 +2,7 @@
 members = [
     "rabbit-hole",
     "lib/*/*",
+    "apps/*/*",
     "tests/*",
 ]
 
