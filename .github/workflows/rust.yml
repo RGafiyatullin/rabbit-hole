@@ -1,15 +1,5 @@
 name: Rust
 
-- uses: actions/cache@v3
-  with:
-    path: |
-      ~/.cargo/bin/
-      ~/.cargo/registry/index/
-      ~/.cargo/registry/cache/
-      ~/.cargo/git/db/
-      target/
-    key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
 on:
   push:
     branches: [ "dev", "main" ]
@@ -25,6 +15,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - uses: actions/checkout@v3
     - name: rustup (add nightly toolchain)
       run: rustup toolchain install nightly
