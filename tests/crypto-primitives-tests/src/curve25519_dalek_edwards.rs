@@ -1,5 +1,5 @@
-type Scalar = curve25519::scalar::Scalar;
-type Point = curve25519::edwards::EdwardsPoint;
+type Scalar = curve25519_dalek::scalar::Scalar;
+type Point = curve25519_dalek::edwards::EdwardsPoint;
 
 #[path = "generic/schnorr_proof.rs"]
 mod schnorr_proof;

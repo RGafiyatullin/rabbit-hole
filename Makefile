@@ -16,6 +16,10 @@ fmt-check:
 test:
 	$(CARGO_TEST) --release
 
+.PHONY: build
+build:
+	$(CARGO) build --all --release
+
 
 .PHONY: clean
 clean:
