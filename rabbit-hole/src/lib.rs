@@ -1,3 +1,3 @@
 #![no_std]
 
-pub use {::schnorr_proof, ::shamir_sss};
+pub use {::csi_rashi_dkg, ::feldman_vsss, ::schnorr_proof, ::shamir_sss};
