@@ -16,8 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: rustup (add nightly)
-      run: rustup toolchain install nightly
+    - name: rustup (add nightly fmt)
+      run: rustup component add rustfmt --toolchain nightly-x86_64-unknown-linux-gnu
     - name: cargo fmt
       run: make fmt-check
     - name: cargo clippy
