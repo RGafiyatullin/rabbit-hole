@@ -30,7 +30,7 @@ jobs:
     - name: rustup (add fmt into nightly toolchain)
       run: rustup component add rustfmt --toolchain nightly-x86_64-unknown-linux-gnu
     - name: install cargo-nextest
-      run: if ! (cargo install --list | grep -q cargo-nextest); then cargo install cargo-nextest; fi
+      run: if [ ! -f ~/.cargo/bin/cargo-nextest ]; then cargo install cargo-nextest; fi
     - name: cargo fmt
       run: make fmt-check
     - name: cargo clippy
