@@ -1,0 +1,24 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "dev", "main" ]
+  pull_request:
+    branches: [ "dev", "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: cargo fmt
+      run: make fmt-check
+    - name: cargo clippy
+      run: make clippy
+    - name: cargo test
+      run: make test
