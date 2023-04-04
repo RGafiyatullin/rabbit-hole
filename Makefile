@@ -1,5 +1,6 @@
 
 CARGO = cargo
+CARGO_TEST = cargo nextest run
 
 .PHONY: all
 all:
@@ -13,7 +14,7 @@ fmt-check:
 
 .PHONY: test
 test:
-	$(CARGO) nextest run --release
+	$(CARGO_TEST) --release
 
 
 .PHONY: clean
