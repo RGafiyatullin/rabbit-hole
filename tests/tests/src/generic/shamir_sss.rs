@@ -20,7 +20,7 @@ where
     let p = g * y_0;
 
     let mut scheme = [F::default(); 3];
-    scheme.init_from_secret(y_0, &mut rng);
+    scheme.init_from_secret(&y_0, &mut rng);
 
     let xs = std::iter::repeat_with(|| F::random(&mut rng)).take(PARTIES).collect::<Vec<_>>();
     let ys = xs.iter().copied().map(|x| scheme.issue_share(x)).collect::<Vec<_>>();

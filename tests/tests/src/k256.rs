@@ -9,3 +9,6 @@ mod shamir_sss;
 
 #[path = "generic/feldman_vsss.rs"]
 mod feldman_vsss;
+
+#[path = "generic/csi_rashi_dkg.rs"]
+mod csi_rashi_dkg;

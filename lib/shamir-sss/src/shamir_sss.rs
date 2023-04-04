@@ -5,9 +5,9 @@ pub trait SchemeInitFromSecret<F>: AsMut<[F]>
 where
     F: PrimeField,
 {
-    fn init_from_secret(&mut self, secret: F, mut rng: impl RngCore) {
+    fn init_from_secret(&mut self, secret: &F, mut rng: impl RngCore) {
         let coefficients = self.as_mut();
-        coefficients[0] = secret;
+        coefficients[0] = *secret;
 
         coefficients[1..].iter_mut().for_each(|c| *c = F::random(&mut rng));
     }

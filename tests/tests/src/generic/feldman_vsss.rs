@@ -19,7 +19,7 @@ where
 
     let ss: [_; PARTIES] = core::array::from_fn(|_| {
         let mut s: [F; THRESHOLD] = Default::default();
-        s.init_from_secret(F::random(&mut rng), &mut rng);
+        s.init_from_secret(&F::random(&mut rng), &mut rng);
         s
     });
     let cs: [_; PARTIES] = ss.map(|s| {
