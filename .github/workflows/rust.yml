@@ -36,4 +36,4 @@ jobs:
     - name: cargo clippy
       run: make clippy
     - name: cargo test
-      run: make CARGO_TEST="cargo test" test
+      run: make test
