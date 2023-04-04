@@ -8,6 +8,9 @@ all:
 fmt:
 	$(CARGO) +nightly fmt
 
+fmt-check:
+	$(CARGO) +nightly fmt --check
+
 .PHONY: test
 test:
 	$(CARGO) nextest run --release
