@@ -1,5 +1,5 @@
 [package]
-name = "rabbit-hole-crypto-primitives-shamir-sss"
+name = "rabbit-hole-crypto-primitives-utils"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,3 @@ edition = "2021"
 
 [dependencies]
 ff = {workspace = true}
-rand = {workspace = true}

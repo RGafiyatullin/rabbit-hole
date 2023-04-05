@@ -12,3 +12,6 @@ mod feldman_vsss;
 
 #[path = "generic/csi_rashi_dkg.rs"]
 mod csi_rashi_dkg;
+
+#[path = "generic/frost_tss.rs"]
+mod frost_tss;

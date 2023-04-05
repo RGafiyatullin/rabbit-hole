@@ -7,7 +7,7 @@ members = [
 ]
 
 [workspace.dependencies]
-curve25519-dalek = "^3"
+digest = "^0.10"
 ff = "^0.13"
 group = "^0.13"
 heapless = "^0.7"
@@ -19,7 +19,12 @@ zeroize = "^1.6"
 k256 = {version = "^0.13", default-features = false, features = ["arithmetic"]}
 curve25519 = {git = "https://github.com/str4d/curve25519-dalek.git", package = "curve25519-dalek", branch = "ff", default-features = false, features = ["group"]}
 
-csi-rashi-dkg = {path = "lib/crypto-primitives/csi-rashi-dkg", package = "rabbit-hole-csi-rashi-dkg"}
-feldman-vsss = {path = "lib/crypto-primitives/feldman-vsss", package = "rabbit-hole-feldman-vsss"}
-schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit-hole-schnorr-proof"}
-shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-shamir-sss"}
+sha2 = "^0.10"
+sha3 = "^0.10"
+
+csi-rashi-dkg = {path = "lib/crypto-primitives/csi-rashi-dkg", package = "rabbit-hole-crypto-primitives-csi-rashi-dkg"}
+feldman-vsss = {path = "lib/crypto-primitives/feldman-vsss", package = "rabbit-hole-crypto-primitives-feldman-vsss"}
+frost-tss = {path = "lib/crypto-primitives/frost-tss", package = "rabbit-hole-crypto-primitives-frost-tss"}
+schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit-hole-crypto-primitives-schnorr-proof"}
+shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
+utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-primitives-utils"}

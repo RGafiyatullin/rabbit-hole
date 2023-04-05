@@ -1,5 +1,5 @@
 [package]
-name = "rabbit-hole-schnorr-proof"
+name = "rabbit-hole-crypto-primitives-schnorr-proof"
 version = "0.1.0"
 edition = "2021"
 
