@@ -17,6 +17,7 @@ rand = "^0.8"
 securestore = "^0.100"
 serde = "^1"
 serde_json = "^1"
+serde_yaml = "^0.9"
 structopt = "^0.3"
 subtle = "^2.5"
 thiserror = "^1"
@@ -38,4 +39,5 @@ schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit
 shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
 utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-primitives-utils"}
 
+interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
 logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}

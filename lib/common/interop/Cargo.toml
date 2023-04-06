@@ -1,0 +1,17 @@
+[package]
+name = "rabbit-hole-common-interop"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ff = {workspace = true}
+group = {workspace = true}
+hex = {workspace = true}
+serde = {workspace = true, features = ["derive"]}
+
+[dev-dependencies]
+k256 = {workspace = true}
+rand = {workspace = true}
+serde_json = {workspace = true}

@@ -4,12 +4,6 @@ mkdir -p ~/.alice
 ssclient create -k ~/.alice/sm-key.pem -s ~/.alice/sm-data.json
 ```
 
-shamir-xs:
-```
-bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd00
-191fb5fc4a9bf2ded9a09a0a2c4eb3eb90f15ee96deb1eec1a970df0a79d0900
-a3b9a39c707177f10d440c071303df8beff535c40c7c25e92da187b14aac1200
-```
 
 ensure the key-generation sessions one,two,three are cancelled
 ```
