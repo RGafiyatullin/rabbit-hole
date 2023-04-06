@@ -1,12 +1,11 @@
 [package]
-name = "rabbit-hole"
+name = "rabbit-hole-common-logging"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-csi-rashi-dkg = {workspace = true}
-feldman-vsss = {workspace = true}
-shamir-sss = {workspace = true}
-schnorr-proof = {workspace = true}
+structopt = {workspace = true}
+tracing = {workspace = true}
+tracing-subscriber = {workspace = true}

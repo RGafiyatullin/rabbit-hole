@@ -17,6 +17,10 @@ test:
 	$(CARGO_TEST) --release
 
 
+.PHONY: build
+build:
+	$(CARGO) build --release --all
+
 .PHONY: clean
 clean:
 	$(CARGO) clean

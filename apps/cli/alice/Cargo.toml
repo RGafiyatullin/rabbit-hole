@@ -1,0 +1,31 @@
+[package]
+name = "alice"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+base64 = {workspace = true}
+digest = {workspace = true}
+dotenv = {workspace = true}
+ff = {workspace = true}
+group = {workspace = true}
+hex = {workspace = true}
+rand = {workspace = true}
+securestore = {workspace = true}
+serde = {workspace = true, features = ["derive"]}
+structopt = {workspace = true}
+tokio = {workspace = true, features = ["rt", "macros", "fs"]}
+tracing = {workspace = true}
+tracing-subscriber = {workspace = true}
+
+logging = {workspace = true}
+
+utils = {workspace = true}
+csi-rashi-dkg = {workspace = true, features = ["std-error"]}
+frost-tss = {workspace = true}
+
+curve25519 = {workspace = true}
+k256 = {workspace = true}
+sha3 = {workspace = true}
