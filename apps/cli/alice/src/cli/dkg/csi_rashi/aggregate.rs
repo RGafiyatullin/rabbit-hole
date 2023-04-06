@@ -63,35 +63,42 @@ impl Aggregate {
             shards.into_iter().map(|shard| (shard.shamir_y, shard.commitment)).unzip();
         let mut complaints = vec![false; shards_count];
 
-        cli.with_secrets_manager(|mut sm| async move {
-            let own_share: KeyShareShard<F, G> = sm.get(&own_share_storage_key)?.parse()?;
-            shamir_ys.push(own_share.shamir_y);
-            commitments.push(own_share.commitment);
-            complaints.push(false);
+        let (public_key, shamir_x) = cli
+            .with_secrets_manager(|mut sm| async move {
+                let own_share: KeyShareShard<F, G> = sm.get(&own_share_storage_key)?.parse()?;
+                shamir_ys.push(own_share.shamir_y);
+                commitments.push(own_share.commitment);
+                complaints.push(false);
 
-            let (key_share, public_key) = csi_rashi_dkg::aggregate(
-                &commitments[..],
-                &own_share.shamir_x,
-                &shamir_ys[..],
-                &mut complaints[..],
-            )?;
+                let (key_share, public_key) = csi_rashi_dkg::aggregate(
+                    &commitments[..],
+                    &own_share.shamir_x,
+                    &shamir_ys[..],
+                    &mut complaints[..],
+                )?;
 
-            sm.set(
-                &s4_storage_key,
-                format!(
-                    "{}:{}:{}",
-                    hex::encode(public_key.to_bytes().as_ref()),
-                    hex::encode(own_share.shamir_x.to_repr().as_ref()),
-                    hex::encode(key_share.to_repr().as_ref())
-                ),
-            );
-            sm.remove(&own_share_storage_key)?;
+                sm.set(
+                    &s4_storage_key,
+                    format!(
+                        "{}:{}:{}",
+                        hex::encode(public_key.to_bytes().as_ref()),
+                        hex::encode(own_share.shamir_x.to_repr().as_ref()),
+                        hex::encode(key_share.to_repr().as_ref())
+                    ),
+                );
+                sm.remove(&own_share_storage_key)?;
 
-            sm.save()?;
+                sm.save()?;
 
-            Ok::<_, AnyError>(())
-        })
-        .await??;
+                Ok::<_, AnyError>((public_key, own_share.shamir_x))
+            })
+            .await??;
+
+        println!(
+            "{}:{}",
+            hex::encode(public_key.to_bytes().as_ref()),
+            hex::encode(shamir_x.to_repr().as_ref()),
+        );
 
         Ok(())
     }
