@@ -7,7 +7,7 @@ use crate::AnyError;
 use super::{Cli, Frost, Nonce, Tss};
 
 #[derive(Debug, StructOpt)]
-pub struct Remove {
+pub struct MarkUsed {
     #[structopt(name = "COMMITMENT")]
     commitment: Option<String>,
 }
@@ -18,7 +18,7 @@ enum Select {
     Stdin,
 }
 
-impl Remove {
+impl MarkUsed {
     pub async fn run(
         &self,
         _nonce: &Nonce,
@@ -26,7 +26,8 @@ impl Remove {
         _tss: &Tss,
         cli: &Cli,
     ) -> Result<(), AnyError> {
-        let key_prefix = cli.secrets_ns.tss_frost_nonce(frost.curve);
+        let key_prefix_ready = cli.secrets_ns.tss_frost_nonce_ready(frost.curve);
+        let key_prefix_used = cli.secrets_ns.tss_frost_nonce_used(frost.curve);
 
         let selection = if let Some(one) = self.commitment.as_ref() {
             vec![one.to_owned()]
@@ -36,10 +37,13 @@ impl Remove {
 
         cli.with_secrets_manager(|mut sm| async move {
             for commitment in selection {
-                let key = format!("{}/{}", key_prefix, commitment);
-                tracing::debug!("removing key {:?}", key);
-                if let Err(reason) = sm.remove(&key) {
+                let key_ready = format!("{}/{}", key_prefix_ready, commitment);
+                let key_used = format!("{}/{}", key_prefix_used, commitment);
+                tracing::debug!("removing key {:?}", key_ready);
+                if let Err(reason) = sm.remove(&key_ready) {
                     tracing::warn!("could not remove {:?}: {}", commitment, reason);
+                } else {
+                    sm.set(&key_used, String::new());
                 }
             }
             sm.save()?;

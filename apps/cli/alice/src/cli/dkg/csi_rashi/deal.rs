@@ -2,7 +2,7 @@ use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use crate::curve::Curve;
+use crate::common::Curve;
 use crate::AnyError;
 
 use super::{Cli, Commitment, CsiRashi, Dkg, KeyShareShard, MAX_THRESHOLD};

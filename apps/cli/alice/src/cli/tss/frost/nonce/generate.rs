@@ -2,7 +2,7 @@ use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use crate::curve::Curve;
+use crate::common::Curve;
 use crate::AnyError;
 
 use super::{Cli, Frost, Nonce, Tss};
@@ -65,7 +65,7 @@ impl Generate {
                 for ((d, e), (cd, ce)) in nonces.into_iter().zip(commitments.iter().copied()) {
                     let key = format!(
                         "{}/{}:{}",
-                        cli.secrets_ns.tss_frost_nonce(frost.curve),
+                        cli.secrets_ns.tss_frost_nonce_ready(frost.curve),
                         hex::encode(cd.to_bytes()),
                         hex::encode(ce.to_bytes()),
                     );

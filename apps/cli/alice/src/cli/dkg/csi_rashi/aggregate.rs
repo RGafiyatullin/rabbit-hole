@@ -5,7 +5,7 @@ use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
 use crate::cli::dkg::csi_rashi::KeyShareShard;
-use crate::curve::Curve;
+use crate::common::Curve;
 use crate::AnyError;
 
 use super::{Cli, CsiRashi, Dkg};

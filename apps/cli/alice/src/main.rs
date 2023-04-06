@@ -1,7 +1,7 @@
 type AnyError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 mod cli;
-mod curve;
+mod common;
 mod logging;
 mod namespace;
 

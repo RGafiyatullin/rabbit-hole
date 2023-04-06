@@ -1,0 +1,59 @@
+
+```
+.private/alice.sh key-share list                               
+```
+
+```
+ed25519 one
+ed25519 three
+ed25519 two
+```
+
+
+---
+
+```
+.private/alice.sh tss frost -c ed25519 nonce generate --count 2                                                                                                                 
+```
+
+```
+curve: ed25519
+generating 2 nonce-pairs...
+done!
+
+281f0451c304b2aa3d969148aa07e10b6098505a8ba03fa9b5beb10f5dda218b:ea8c7399d6ee85f500dfe9884a27ef7c2a6d87bfcc19d35b2b6bf82d22e4a495
+9fef942bc93a63fd713603dce491b0ceaf07f56638ff048055b573f407f64f20:10f8bd8fe5055e59618ba921c5795df7cd360c84c7a6a21c28a9df0d9008faa0
+```
+
+
+---
+
+```
+.private/alice.sh tss frost -c ed25519 sign -h sha3-256 -k one <<EOF
+bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd00:281f0451c304b2aa3d969148aa07e10b6098505a8ba03fa9b5beb10f5dda218b:ea8c7399d6ee85f500dfe9884a27ef7c2a6d87bfcc19d35b2b6bf82d22e4a495
+191fb5fc4a9bf2ded9a09a0a2c4eb3eb90f15ee96deb1eec1a970df0a79d0900:9fef942bc93a63fd713603dce491b0ceaf07f56638ff048055b573f407f64f20:10f8bd8fe5055e59618ba921c5795df7cd360c84c7a6a21c28a9df0d9008faa0
+
+65686c6c206f6f776c720a64
+EOF
+```
+
+```
+0:4a9e81437a87e5860f9dbc99627dfb2af5dd6176c54284d2dc16554ccd155194:2d2bb77b1f4a92763cd5624db56d5b4d800f98166973e0ab74019fce295c36ec:186ecb5f5d89bb2b766d3b6bd22ddf8020abd6911f11944be4b688e5d39c270d
+```
+
+---
+
+```
+.private/alice.sh tss frost -c ed25519 sign -h sha3-256 -k two <<EOF
+bc4bb29ce739b5d97007946aa4fdb987012c647b506732f11653c5059631cd00:281f0451c304b2aa3d969148aa07e10b6098505a8ba03fa9b5beb10f5dda218b:ea8c7399d6ee85f500dfe9884a27ef7c2a6d87bfcc19d35b2b6bf82d22e4a495
+191fb5fc4a9bf2ded9a09a0a2c4eb3eb90f15ee96deb1eec1a970df0a79d0900:9fef942bc93a63fd713603dce491b0ceaf07f56638ff048055b573f407f64f20:10f8bd8fe5055e59618ba921c5795df7cd360c84c7a6a21c28a9df0d9008faa0
+
+65686c6c206f6f776c720a64
+EOF
+```
+
+```
+1:425de1ce808a6a3296a014d2815a829d24f5bca85be26f6d42bdaf58e95e05dd:e8dabc0d3884c238ffa752397e8d8c294afe0c34dd63e29f5a361f286587d7e9:3f36c3b719bd803c49aa3299d5519d1881e0a335db918ab6200fac4c16013c0a
+```
+
+---

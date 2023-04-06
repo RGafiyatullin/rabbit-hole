@@ -1,4 +1,4 @@
-use crate::curve::Curve;
+use crate::common::Curve;
 
 #[derive(Debug, Clone, Default)]
 pub struct Namespace;
@@ -16,7 +16,10 @@ impl Namespace {
         format!("{}/{}", self.key_share_s4(), curve)
     }
 
-    pub fn tss_frost_nonce(&self, curve: Curve) -> String {
-        format!("tss/frost/nonce/{}", curve)
+    pub fn tss_frost_nonce_ready(&self, curve: Curve) -> String {
+        format!("tss/frost/nonce/ready/{}", curve)
+    }
+    pub fn tss_frost_nonce_used(&self, curve: Curve) -> String {
+        format!("tss/frost/nonce/used/{}", curve)
     }
 }

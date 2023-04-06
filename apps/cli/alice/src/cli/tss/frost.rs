@@ -1,6 +1,6 @@
 use structopt::StructOpt;
 
-use crate::curve::Curve;
+use crate::common::Curve;
 use crate::AnyError;
 
 use super::{Cli, Tss};

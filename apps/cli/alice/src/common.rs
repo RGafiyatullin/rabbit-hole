@@ -7,9 +7,43 @@ pub enum Curve {
     Ristretto25519,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum HashFunction {
+    Sha3_256,
+}
+
 const SECP256K1: &str = "secp256k1";
 const ED25519: &str = "ed25519";
 const RISTRETTO25519: &str = "ristretto25519";
+
+const SHA3_256: &str = "sha3-256";
+
+impl HashFunction {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Sha3_256 => SHA3_256,
+        }
+    }
+}
+
+impl fmt::Display for HashFunction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.as_str().fmt(f)
+    }
+}
+
+impl str::FromStr for HashFunction {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let out = match s {
+            SHA3_256 => Self::Sha3_256,
+
+            unknown => return Err(format!("Unknown hash-function: {:?}", unknown)),
+        };
+
+        Ok(out)
+    }
+}
 
 impl Curve {
     pub fn as_str(&self) -> &'static str {

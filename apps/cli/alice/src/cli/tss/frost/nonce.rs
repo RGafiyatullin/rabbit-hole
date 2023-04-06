@@ -7,7 +7,7 @@ use super::{Cli, Frost, Tss};
 mod count;
 mod generate;
 mod list;
-mod remove;
+mod marked_used;
 
 #[derive(Debug, StructOpt)]
 pub struct Nonce {
@@ -20,7 +20,7 @@ enum Cmd {
     Generate(generate::Generate),
     Count(count::Count),
     List(list::List),
-    Remove(remove::Remove),
+    MarkUsed(marked_used::MarkUsed),
 }
 
 impl Nonce {
@@ -29,7 +29,7 @@ impl Nonce {
             Cmd::Generate(sub) => sub.run(self, frost, tss, cli).await,
             Cmd::Count(sub) => sub.run(self, frost, tss, cli).await,
             Cmd::List(sub) => sub.run(self, frost, tss, cli).await,
-            Cmd::Remove(sub) => sub.run(self, frost, tss, cli).await,
+            Cmd::MarkUsed(sub) => sub.run(self, frost, tss, cli).await,
         }
     }
 }

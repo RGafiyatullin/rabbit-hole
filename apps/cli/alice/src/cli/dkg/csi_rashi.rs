@@ -4,7 +4,7 @@ use ff::PrimeField;
 use group::GroupEncoding;
 use structopt::StructOpt;
 
-use crate::curve::Curve;
+use crate::common::Curve;
 use crate::AnyError;
 
 use super::{Cli, Dkg};
@@ -83,8 +83,8 @@ where
 {
     type Err = AnyError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let Some((shamir_x, s)) = s.split_once(':') else { return Err("':' missing".into()) };
-        let Some((shamir_y, commitment)) = s.split_once(':') else { return Err("':' missing".into()) };
+        let (shamir_x, s) = s.split_once(':').ok_or("missing `:`")?;
+        let (shamir_y, commitment) = s.split_once(':').ok_or("missing `:`")?;
 
         let shamir_x = utils::bytes_to_scalar(hex::decode(shamir_x)?.as_ref());
         let shamir_y = utils::bytes_to_scalar(hex::decode(shamir_y)?.as_ref());

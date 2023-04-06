@@ -17,7 +17,7 @@ impl List {
         _tss: &Tss,
         cli: &Cli,
     ) -> Result<(), AnyError> {
-        let key_prefix = cli.secrets_ns.tss_frost_nonce(frost.curve);
+        let key_prefix = cli.secrets_ns.tss_frost_nonce_ready(frost.curve);
         let key_prefix = key_prefix.as_str();
 
         let mut stdout = std::io::stdout().lock();
