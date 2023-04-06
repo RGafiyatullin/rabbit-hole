@@ -24,7 +24,7 @@ logging = {workspace = true}
 
 utils = {workspace = true}
 csi-rashi-dkg = {workspace = true, features = ["std-error"]}
-frost-tss = {workspace = true}
+frost-tss = {workspace = true, features = ["std-error"]}
 
 curve25519 = {workspace = true}
 k256 = {workspace = true}

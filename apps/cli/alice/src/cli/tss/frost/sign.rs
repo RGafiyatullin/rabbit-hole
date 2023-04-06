@@ -5,7 +5,7 @@ use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use crate::common::{Curve, HashFunction};
+use crate::common::{decode_point, Curve, HashFunction};
 use crate::AnyError;
 
 use super::{Cli, Frost, Tss};
@@ -170,16 +170,5 @@ impl Sign {
         );
 
         Ok(())
-    }
-}
-
-fn decode_point<G: GroupEncoding>(s: &str) -> Option<G> {
-    let mut point_repr: G::Repr = Default::default();
-    hex::decode_to_slice(s, point_repr.as_mut()).ok()?;
-    let p = G::from_bytes(&point_repr);
-    if p.is_some().unwrap_u8() == 1 {
-        Some(p.unwrap())
-    } else {
-        None
     }
 }

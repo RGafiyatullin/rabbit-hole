@@ -1,5 +1,18 @@
 use std::{fmt, str};
 
+use group::GroupEncoding;
+
+pub fn decode_point<G: GroupEncoding>(s: &str) -> Option<G> {
+    let mut point_repr: G::Repr = Default::default();
+    hex::decode_to_slice(s, point_repr.as_mut()).ok()?;
+    let p = G::from_bytes(&point_repr);
+    if p.is_some().unwrap_u8() == 1 {
+        Some(p.unwrap())
+    } else {
+        None
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Curve {
     Secp256k1,
