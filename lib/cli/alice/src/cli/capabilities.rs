@@ -20,8 +20,15 @@ impl<F, D, H> Cli<F, D, H> {
     }
 
     pub fn open_storage(&self) -> Result<Storage, AnyError> {
+        if let Some(storage) = self.storage.borrow().as_ref() {
+            return Ok(storage.clone())
+        }
+
         let path = self.storage_path()?;
         let storage = Storage::open(path.to_str().ok_or("invalid path")?)?;
+
+        *self.storage.borrow_mut() = Some(storage.clone());
+
         Ok(storage)
     }
 }

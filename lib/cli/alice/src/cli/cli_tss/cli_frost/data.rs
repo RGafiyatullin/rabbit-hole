@@ -17,7 +17,7 @@ pub struct Commitment<G> {
 }
 
 impl<G: GroupEncoding> Commitment<G> {
-    pub fn to_storage_key(&self) -> String {
-        format!("{}:{}", self.cd, self.ce)
+    pub fn to_storage_key(&self, s4_key_id: &str) -> String {
+        format!("{}/{}:{}", s4_key_id, self.cd, self.ce)
     }
 }

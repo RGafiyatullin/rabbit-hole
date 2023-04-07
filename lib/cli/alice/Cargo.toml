@@ -29,6 +29,7 @@ sha2 = {workspace = true}
 sha3 = {workspace = true}
 
 csi-rashi-dkg = {workspace = true}
+frost-tss = {workspace = true}
 
 common-logging = {workspace = true}
 common-interop = {workspace = true}
