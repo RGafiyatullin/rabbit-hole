@@ -39,5 +39,7 @@ schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit
 shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
 utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-primitives-utils"}
 
-interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
-logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}
+common-interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
+common-logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}
+
+cli-alice = {path = "lib/cli/alice", package = "rabbit-hole-cli-alice"}
