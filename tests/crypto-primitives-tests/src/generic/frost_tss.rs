@@ -100,6 +100,7 @@ fn basic_impl<
         assert!(!complaints.into_iter().any(core::convert::identity));
 
         assert_eq!(g * z, r + y * produce_challenge(&y, &r));
+        assert_eq!(y, public_key);
     }
 }
 
