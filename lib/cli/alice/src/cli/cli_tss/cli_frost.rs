@@ -10,7 +10,8 @@ use super::{Cli, CliRun, CliTss};
 
 mod cli_nonce;
 
-// mod data;
+mod data;
+use data::Nonce;
 
 #[derive(Debug, StructOpt)]
 pub struct CliFrost<F, G, H> {
@@ -40,7 +41,12 @@ where
 
 impl<F, G, H> CliFrost<F, G, H> {
     fn s4_shares_table(&self, cli: &Cli<F, G, H>) -> Result<Table<S4Share<F, G>>, AnyError> {
-        let table = Table::<S4Share<F, G>>::open(cli.open_storage()?, cli.curve)?;
+        let table = Table::open(cli.open_storage()?, cli.curve)?;
+        Ok(table)
+    }
+
+    fn nonces_table(&self, cli: &Cli<F, G, H>) -> Result<Table<Nonce<F>>, AnyError> {
+        let table = Table::open(cli.open_storage()?, cli.curve)?;
         Ok(table)
     }
 }

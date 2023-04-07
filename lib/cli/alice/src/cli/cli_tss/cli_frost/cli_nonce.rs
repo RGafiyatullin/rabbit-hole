@@ -52,6 +52,5 @@ fn generate<F, G, H>(
     _tss: &CliTss<F, G, H>,
     _cli: &Cli<F, G, H>,
 ) -> Result<(), AnyError> {
-    
     unimplemented!()
 }
