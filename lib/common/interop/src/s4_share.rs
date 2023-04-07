@@ -1,9 +1,21 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(bound(
+    serialize = "F: ff::PrimeField, G: group::GroupEncoding",
+    deserialize = "F: ff::PrimeField, G: group::GroupEncoding"
+))]
+pub struct S4Share<F, G> {
+    pub public_key: Point<G>,
+    pub shamir_x: Scalar<F>,
+    pub shamir_y: Scalar<F>,
+}
+
 use core::{fmt, str};
 
 use ff::PrimeField;
 use group::GroupEncoding;
+use serde::{Deserialize, Serialize};
 
-use super::S4Share;
+use crate::types::{Point, Scalar};
 
 impl<F, G> fmt::Display for S4Share<F, G>
 where

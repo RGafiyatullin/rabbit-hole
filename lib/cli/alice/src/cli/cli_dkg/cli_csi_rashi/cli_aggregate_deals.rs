@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 
-use common_interop::types::{Point, S4Share, Scalar};
+use common_interop::s4_share::S4Share;
+use common_interop::types::{Point, Scalar};
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use serde_json::json;

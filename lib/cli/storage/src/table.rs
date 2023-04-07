@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use common_interop::types::Curve;
+use common_interop::curve::Curve;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -55,6 +55,21 @@ impl<N, T> Table<N, T> {
         let Some(json) = self.tree.get(key_id)? else {return Ok(None)};
         let entry = self.storage.deserialize(json)?;
         Ok(Some(entry))
+    }
+
+    pub fn dump(&self) -> Result<(), AnyError> {
+        eprintln!("Dumping: {:?}", std::str::from_utf8(self.tree.name().as_ref()));
+        for k in self.tree.iter() {
+            let (k, v) = k?;
+
+            eprintln!(
+                "{:?} -> {:?}",
+                std::str::from_utf8(k.as_ref()),
+                std::str::from_utf8(v.as_ref()),
+            );
+        }
+        eprintln!("Done!");
+        Ok(())
     }
 }
 

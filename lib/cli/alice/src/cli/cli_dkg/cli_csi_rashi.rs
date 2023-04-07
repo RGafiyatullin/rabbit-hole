@@ -1,5 +1,5 @@
 use cli_storage::Table;
-use common_interop::types::S4Share;
+use common_interop::s4_share::S4Share;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;

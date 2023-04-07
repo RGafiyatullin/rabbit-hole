@@ -1,3 +1,4 @@
+use digest::Digest;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
@@ -23,6 +24,7 @@ impl<F, G, H> CliRun<&Cli<F, G, H>> for CliTss<F, G, H>
 where
     F: PrimeField,
     G: Group<Scalar = F> + GroupEncoding,
+    H: Digest,
 {
     fn run(&self, cli: &Cli<F, G, H>) -> Result<(), AnyError> {
         match &self.cmd {

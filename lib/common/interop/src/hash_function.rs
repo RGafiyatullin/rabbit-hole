@@ -1,6 +1,12 @@
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum HashFunction {
+    Sha3_256,
+}
+
 use std::{fmt, str};
 
-use super::HashFunction;
+use serde::de::Error as DeError;
+use serde::{Deserialize, Serialize};
 
 const SHA3_256: &str = "sha3-256";
 
@@ -33,5 +39,25 @@ impl str::FromStr for HashFunction {
         };
 
         Ok(out)
+    }
+}
+
+impl Serialize for HashFunction {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.as_str().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for HashFunction {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(<D::Error as DeError>::custom)
     }
 }

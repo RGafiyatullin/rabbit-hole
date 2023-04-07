@@ -7,7 +7,8 @@ use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use common_interop::types::{Curve, HashFunction};
+use common_interop::curve::Curve;
+use common_interop::hash_function::HashFunction;
 
 use crate::AnyError;
 

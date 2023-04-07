@@ -1,3 +1,8 @@
+
+# Frost
+
+## Pregenerate Nonce-Pairs for each key-share
+
 ```shell
 target/release/alice tss frost -k k0:1 nonce generate --count 10
 ```
@@ -28,7 +33,7 @@ target/release/alice tss frost -k k0:1 nonce generate --count 10
 --- 
 
 ```shell
-➜  rabbit-hole git:(apps/cli/alice/refactoring) ✗ target/release/alice tss frost -k k0:2 nonce generate --count 10
+target/release/alice tss frost -k k0:2 nonce generate --count 10
 ```
 
 ```yaml
@@ -57,7 +62,7 @@ target/release/alice tss frost -k k0:1 nonce generate --count 10
 ---
 
 ```shell
-➜  rabbit-hole git:(apps/cli/alice/refactoring) ✗ target/release/alice tss frost -k k0:3 nonce generate --count 10
+target/release/alice tss frost -k k0:3 nonce generate --count 10
 ```
 
 ```yaml
@@ -82,3 +87,105 @@ target/release/alice tss frost -k k0:1 nonce generate --count 10
 - cd: 03df74f0f6eaacb838092b4d0fa5254c277b896011e5a66a7c63710b30547c8940
   ce: 02343d5a4151a42acee13944cccdb921df6c3c66885fcee0fbcaaa47a0b4079708
 ```
+
+## Signing
+
+```yaml
+target/release/alice tss frost -k k0:1 sign <<YAML
+transcript:
+    hash_function: sha3-256
+    input:
+        - !point    Y
+        - !point    R
+        - !text     Hello There!
+        - !hex      48656c6c6f20546865726521
+shamir_xs:
+    - 01
+    - 02
+    - 03
+commitments:
+    - cd: 02e0eb3130f66ebed7ecb7ae776c9c017cb79a0e9b584d55afb42ae22ef1ae170d
+      ce: 02a3b1d8eec0a371283e10d32ff32495b0c3f8b023abad4525adf620e7f2c8193c
+    - cd: 03cb443e9ca55c5f55ca43ba85fc3dd8945b4d1db3bf51ddaa70ee6c6ef943977e
+      ce: 0381fff61ab6b0aae4b757d2c3aa32e835a435165d761ed69e9da51a8773ae084b
+    - cd: 02638a9e2f2e797f53900a8316ab63aa13556bb17fb99567eff06ecdf63fe1033a
+      ce: 02e56756c59a63dba460c83482e311bb2741456380087933075d35fe4034cafdda
+YAML
+```
+
+```
+sign:
+  r_i: 02ea0c2ff0f3ee8c704e65e41a107a284d0fc8cb82f6a0db8150df604c55b4c5b7
+  y_i: 0211c961e9e8ed8442e43c0e1a9e83706871cf28cd4ee6a14943462bbe7df80db0
+  z_i: 57ab83a03835fa9c1275c4dc54ca3f6f8f89439121b33c4c6bef38682e1322bc
+```
+
+---
+
+```yaml
+target/release/alice tss frost -k k0:2 sign <<YAML
+transcript:
+    hash_function: sha3-256
+    input:
+        - !point    Y
+        - !point    R
+        - !text     Hello There!
+        - !hex      48656c6c6f20546865726521
+shamir_xs:
+    - 01
+    - 02
+    - 03
+commitments:
+    - cd: 02e0eb3130f66ebed7ecb7ae776c9c017cb79a0e9b584d55afb42ae22ef1ae170d
+      ce: 02a3b1d8eec0a371283e10d32ff32495b0c3f8b023abad4525adf620e7f2c8193c
+    - cd: 03cb443e9ca55c5f55ca43ba85fc3dd8945b4d1db3bf51ddaa70ee6c6ef943977e
+      ce: 0381fff61ab6b0aae4b757d2c3aa32e835a435165d761ed69e9da51a8773ae084b
+    - cd: 02638a9e2f2e797f53900a8316ab63aa13556bb17fb99567eff06ecdf63fe1033a
+      ce: 02e56756c59a63dba460c83482e311bb2741456380087933075d35fe4034cafdda
+YAML
+```
+
+```
+sign:
+  r_i: 039157789550f1640b89e1cdbe05ffeb5f0ed2234978c84fa1bfe7885e6c9796a7
+  y_i: 021e5ddb262b0cc83730ab650141aed8608072a1d7711099ae866f12747cf8f1ca
+  z_i: 44f32b193ba6fee485cbb79425d140b918c4ad77412f7a30966a03815be0f22e
+```
+
+---
+
+```yaml
+target/release/alice tss frost -k k0:3 sign <<YAML
+transcript:
+    hash_function: sha3-256
+    input:
+        - !point    Y
+        - !point    R
+        - !text     Hello There!
+        - !hex      48656c6c6f20546865726521
+shamir_xs:
+    - 01
+    - 02
+    - 03
+commitments:
+    - cd: 02e0eb3130f66ebed7ecb7ae776c9c017cb79a0e9b584d55afb42ae22ef1ae170d
+      ce: 02a3b1d8eec0a371283e10d32ff32495b0c3f8b023abad4525adf620e7f2c8193c
+    - cd: 03cb443e9ca55c5f55ca43ba85fc3dd8945b4d1db3bf51ddaa70ee6c6ef943977e
+      ce: 0381fff61ab6b0aae4b757d2c3aa32e835a435165d761ed69e9da51a8773ae084b
+    - cd: 02638a9e2f2e797f53900a8316ab63aa13556bb17fb99567eff06ecdf63fe1033a
+      ce: 02e56756c59a63dba460c83482e311bb2741456380087933075d35fe4034cafdda
+YAML
+```
+
+```
+sign:
+  r_i: 0305ecb25beb96777915bfca1d93afcd5f47ec3fde91f67a81351635c911de5190
+  y_i: 037ed4e1402919d5cf10a9a6f59cb464e015e3f5389d7b9269241f7ee7a8303696
+  z_i: 7625ae43cfaab5fa0a45b8988cd6c856109775b15a43e0105d1d7dc79673f6cb
+```
+
+## Aggregate
+
+
+
+
