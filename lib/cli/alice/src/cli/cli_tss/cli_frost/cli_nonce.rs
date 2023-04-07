@@ -11,6 +11,9 @@ use super::{Cli, CliFrost, CliRun, CliTss};
 
 #[derive(Debug, StructOpt)]
 pub struct CliNonce<F, G, H> {
+    #[structopt(long, short)]
+    key_id: String,
+
     #[structopt(subcommand)]
     cmd: Cmd, /* <F, G, H> */
 
@@ -42,7 +45,7 @@ where
 }
 
 fn generate<F, G, H>(
-    _nonce: &CliNonce<F, G, H>,
+    nonce: &CliNonce<F, G, H>,
     frost: &CliFrost<F, G, H>,
     _tss: &CliTss<F, G, H>,
     cli: &Cli<F, G, H>,
@@ -53,7 +56,7 @@ where
     G: Group<Scalar = F> + GroupEncoding,
 {
     let rng = cli.rng();
-    let s4_key_id = &frost.key_id;
+    let s4_key_id = &nonce.key_id;
     let s4_shares_table = frost.s4_shares_table(cli)?;
     let nonces_table = frost.nonces_table(cli)?;
 

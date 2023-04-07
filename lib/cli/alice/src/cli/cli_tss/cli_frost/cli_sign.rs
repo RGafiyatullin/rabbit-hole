@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use structopt::StructOpt;
 
-use crate::cli::cli_tss::cli_frost::data::{Commitment, Nonce};
+use crate::cli::cli_tss::cli_frost::data::Commitment;
 use crate::AnyError;
 
 use super::{transcript, Cli, CliFrost, CliRun, CliTss};
@@ -32,6 +32,9 @@ struct Output<F, G> {
 
 #[derive(Debug, StructOpt)]
 pub struct CliSign<F, G, H> {
+    #[structopt(long, short)]
+    key_id: String,
+
     #[structopt(skip)]
     _pd: PhantomData<(F, G, H)>,
 }
@@ -46,7 +49,7 @@ where
         &self,
         (frost, _tss, cli): (&CliFrost<F, G, H>, &CliTss<F, G, H>, &Cli<F, G, H>),
     ) -> Result<(), AnyError> {
-        let s4_key_id = &frost.key_id;
+        let s4_key_id = &self.key_id;
         let s4_shares_table = frost.s4_shares_table(cli)?;
         let nonces_table = frost.nonces_table(cli)?;
 

@@ -20,9 +20,6 @@ mod transcript;
 
 #[derive(Debug, StructOpt)]
 pub struct CliFrost<F, G, H> {
-    #[structopt(long, short)]
-    key_id: String,
-
     #[structopt(subcommand)]
     cmd: Cmd<F, G, H>,
 }
