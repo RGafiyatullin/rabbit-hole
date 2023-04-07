@@ -28,8 +28,8 @@ k256 = {workspace = true}
 sha2 = {workspace = true}
 sha3 = {workspace = true}
 
-csi-rashi-dkg = {workspace = true}
-frost-tss = {workspace = true}
+csi-rashi-dkg = {workspace = true, features = ["std-error"]}
+frost-tss = {workspace = true, features = ["std-error"]}
 utils = {workspace = true}
 
 common-logging = {workspace = true}

@@ -28,7 +28,7 @@ fn test_serde() {
         "{:#?}",
         serde_yaml::from_str::<Transcript>(
             "
-    hasher: sha3-256
+    hash_function: sha3-256
     input:
         - !point Y
         - !point R
