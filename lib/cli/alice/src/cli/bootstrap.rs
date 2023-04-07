@@ -6,7 +6,6 @@ use group::Group;
 use structopt::StructOpt;
 
 use crate::common::{Curve, HashFunction};
-use crate::AnyError;
 
 use super::{Cli, CliRun};
 
@@ -52,20 +51,5 @@ impl Cli<(), (), ()> {
         H: Digest + 'static,
     {
         Box::new(<Cli<F, G, H> as StructOpt>::from_iter(args))
-    }
-}
-
-impl<F, G, H> CliRun<()> for Cli<F, G, H>
-where
-    F: PrimeField,
-    G: Group<Scalar = F>,
-    H: Digest,
-{
-    fn run(&self, _prev: ()) -> Result<(), AnyError> {
-        eprintln!("F: {}", std::any::type_name::<F>());
-        eprintln!("G: {}", std::any::type_name::<G>());
-        eprintln!("H: {}", std::any::type_name::<H>());
-
-        Err("not implemented".into())
     }
 }
