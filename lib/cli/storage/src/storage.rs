@@ -5,7 +5,7 @@ use lockfile::Lockfile;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
-use crate::{AnyError, Table};
+use crate::AnyError;
 
 #[derive(Debug, Clone)]
 pub struct Storage {
@@ -18,8 +18,8 @@ pub struct Storage {
 impl Drop for Storage {
     fn drop(&mut self) {
         // if this is the last clone of that storage
-        if let Some(_) = Arc::get_mut(&mut self.lockfile) {
-            self.sled_db.flush();
+        if Arc::get_mut(&mut self.lockfile).is_some() {
+            let _ = self.sled_db.flush();
         }
     }
 }

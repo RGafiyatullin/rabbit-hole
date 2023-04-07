@@ -52,7 +52,7 @@ where
         let buf = &mut buf[0..(repr.len() * 2)];
 
         hex::encode_to_slice(repr, buf).map_err(|_| fmt::Error)?;
-        let s = core::str::from_utf8(&buf).map_err(|_| fmt::Error)?;
+        let s = core::str::from_utf8(buf).map_err(|_| fmt::Error)?;
 
         write!(f, "{}", s)
     }

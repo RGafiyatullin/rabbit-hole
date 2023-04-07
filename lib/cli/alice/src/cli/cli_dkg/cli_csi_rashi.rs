@@ -1,8 +1,12 @@
+use cli_storage::Table;
+use common_interop::types::S4Share;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
 use crate::AnyError;
+
+use self::data::Session;
 
 use super::{Cli, CliDkg, CliRun};
 
@@ -39,5 +43,16 @@ where
             Cmd::AggregateDeals(sub) => sub.run((self, dkg, cli)),
             Cmd::Reset(sub) => sub.run((self, dkg, cli)),
         }
+    }
+}
+
+impl<F, G, H> CliSciRashi<F, G, H> {
+    fn sessions_table(&self, cli: &Cli<F, G, H>) -> Result<Table<Session<F, G>>, AnyError> {
+        let table = Table::<Session<F, G>>::open(cli.open_storage()?, cli.curve)?;
+        Ok(table)
+    }
+    fn s4_shares_table(&self, cli: &Cli<F, G, H>) -> Result<Table<S4Share<F, G>>, AnyError> {
+        let table = Table::<S4Share<F, G>>::open(cli.open_storage()?, cli.curve)?;
+        Ok(table)
     }
 }

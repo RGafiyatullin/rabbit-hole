@@ -17,7 +17,7 @@ pub struct Point<G>(G);
     serialize = "F: ff::PrimeField, G: group::GroupEncoding",
     deserialize = "F: ff::PrimeField, G: group::GroupEncoding"
 ))]
-pub struct KeyShare<F, G> {
+pub struct S4Share<F, G> {
     pub public_key: Point<G>,
     pub shamir_x: Scalar<F>,
     pub shamir_y: Scalar<F>,

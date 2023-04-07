@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use cli_storage::Table;
 use ff::PrimeField;
 use group::GroupEncoding;
 use serde_json::json;
@@ -8,7 +7,6 @@ use structopt::StructOpt;
 
 use crate::AnyError;
 
-use super::data::Session;
 use super::{Cli, CliDkg, CliRun, CliSciRashi};
 
 #[derive(Debug, StructOpt)]
@@ -27,9 +25,7 @@ where
         &self,
         (csi_rashi, _dkg, cli): (&'a CliSciRashi<F, G, H>, &'a CliDkg<F, G, H>, &'a Cli<F, G, H>),
     ) -> Result<(), AnyError> {
-        if let Some(session) = Table::<Session<F, G>>::open(cli.open_storage()?, cli.curve)?
-            .remove(&csi_rashi.key_id)?
-        {
+        if let Some(session) = csi_rashi.sessions_table(cli)?.remove(&csi_rashi.key_id)? {
             serde_yaml::to_writer(std::io::stdout().lock(), &json!({ "removed": session }))?;
         }
         Ok(())

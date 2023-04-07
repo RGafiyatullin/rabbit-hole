@@ -3,9 +3,9 @@ use core::{fmt, str};
 use ff::PrimeField;
 use group::GroupEncoding;
 
-use super::KeyShare;
+use super::S4Share;
 
-impl<F, G> fmt::Display for KeyShare<F, G>
+impl<F, G> fmt::Display for S4Share<F, G>
 where
     F: PrimeField,
     G: GroupEncoding,
@@ -15,7 +15,7 @@ where
     }
 }
 
-impl<F, G> str::FromStr for KeyShare<F, G>
+impl<F, G> str::FromStr for S4Share<F, G>
 where
     F: PrimeField,
     G: GroupEncoding,

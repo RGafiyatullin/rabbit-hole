@@ -1,10 +1,8 @@
 use core::{fmt, str};
-use std::collections::HashMap;
 use std::hash::Hash;
 
 use ff::PrimeField;
 use serde::de::Error as DeError;
-use serde::ser::Error as SerError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use super::Scalar;
@@ -119,12 +117,14 @@ fn scalar_serde_1() {
 
 #[test]
 fn scalar_serde_2() {
-    let s: Scalar<k256::Scalar> = "01".parse().expect("parse");
-    let s: Scalar<k256::Scalar> = serde_json::from_str("\"01\"").expect("de");
+    let _s: Scalar<k256::Scalar> = "01".parse().expect("parse");
+    let _s: Scalar<k256::Scalar> = serde_json::from_str("\"01\"").expect("de");
 }
 
 #[test]
 fn scalar_serde_3() {
+    use std::collections::HashMap;
+
     let map: HashMap<Scalar<k256::Scalar>, u64> =
         [(Scalar(2u64.into()), 2), (Scalar(4u64.into()), 4)].into_iter().collect();
     let json = serde_json::to_string_pretty(&map).expect("ser");

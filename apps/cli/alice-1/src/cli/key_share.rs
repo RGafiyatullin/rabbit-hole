@@ -1,6 +1,5 @@
 use structopt::StructOpt;
 
-use crate::common::Curve;
 use crate::AnyError;
 
 use super::Cli;
@@ -15,18 +14,12 @@ pub struct KeyShare {
 enum Cmd {
     List,
     Info {
-        #[structopt(long, short)]
-        curve: Curve,
-
-        #[structopt(long, short)]
-        key_id: String,
+        // #[structopt(long, short)]
+        // key_id: String,
     },
     Remove {
-        #[structopt(long, short)]
-        curve: Curve,
-
-        #[structopt(long, short)]
-        key_id: String,
+        // #[structopt(long, short)]
+        // key_id: String,
     },
 }
 

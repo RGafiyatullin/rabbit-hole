@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::marker::PhantomData;
 
-use cli_storage::Table;
 use common_interop::types::{Point, Scalar};
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
@@ -17,7 +16,7 @@ const MAX_THRESHOLD: usize = 64;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(bound(deserialize = "F: ::ff::PrimeField"))]
-pub struct ProduceDealsInput<F> {
+struct Input<F> {
     threshold: usize,
     own_shamir_x: Scalar<F>,
     shamir_xs: Vec<Scalar<F>>,
@@ -25,7 +24,7 @@ pub struct ProduceDealsInput<F> {
 
 #[derive(Debug, Clone, serde::Serialize)]
 #[serde(bound(serialize = "F: ::ff::PrimeField, G: ::group::GroupEncoding"))]
-pub struct ProduceDealsOutput<F, G> {
+struct Output<F, G> {
     threshold: usize,
     commitment: Vec<Point<G>>,
     secret_deals: HashMap<Scalar<F>, Scalar<F>>,
@@ -49,15 +48,12 @@ where
     ) -> Result<(), AnyError> {
         let key_id = &csi_rashi.key_id;
 
-        if Table::<Session<F, G>>::open(cli.open_storage()?, cli.curve)?
-            .get(key_id)?
-            .is_some()
-        {
+        if csi_rashi.sessions_table(cli)?.get(key_id)?.is_some() {
             return Err("The deals have already been produced for this key".into())
         }
 
         let mut rng = cli.rng();
-        let input: ProduceDealsInput<F> = serde_yaml::from_reader(std::io::stdin().lock())?;
+        let input: Input<F> = serde_yaml::from_reader(std::io::stdin().lock())?;
 
         let secret = F::random(&mut rng);
 
@@ -67,7 +63,7 @@ where
 
         let mut shamir_ys = vec![F::ZERO; shamir_xs.len()];
 
-        let commitment = ::csi_rashi_dkg::deal::<F, G, MAX_THRESHOLD>(
+        let commitment = csi_rashi_dkg::deal::<F, G, MAX_THRESHOLD>(
             &mut rng,
             threshold,
             &secret,
@@ -91,15 +87,16 @@ where
             commitment: commitment.clone(),
         };
 
-        let output = ProduceDealsOutput {
+        csi_rashi.sessions_table(cli)?.insert(key_id, &session)?;
+
+        serde_yaml::to_writer(
+            std::io::stdout().lock(),
+            &json!({ "produce_deals": Output {
             threshold,
             commitment,
             secret_deals: shamir_xs.into_iter().zip(shamir_ys).collect(),
-        };
-
-        Table::<Session<F, G>>::open(cli.open_storage()?, cli.curve)?.insert(key_id, &session)?;
-
-        serde_yaml::to_writer(std::io::stdout().lock(), &json!({ "produce_deals": output }))?;
+        } }),
+        )?;
 
         Ok(())
     }
