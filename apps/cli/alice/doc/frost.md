@@ -113,7 +113,7 @@ commitments:
 YAML
 ```
 
-```
+```yaml
 sign:
   r_i: 02ea0c2ff0f3ee8c704e65e41a107a284d0fc8cb82f6a0db8150df604c55b4c5b7
   y_i: 0211c961e9e8ed8442e43c0e1a9e83706871cf28cd4ee6a14943462bbe7df80db0
@@ -145,7 +145,7 @@ commitments:
 YAML
 ```
 
-```
+```yaml
 sign:
   r_i: 039157789550f1640b89e1cdbe05ffeb5f0ed2234978c84fa1bfe7885e6c9796a7
   y_i: 021e5ddb262b0cc83730ab650141aed8608072a1d7711099ae866f12747cf8f1ca
@@ -177,7 +177,7 @@ commitments:
 YAML
 ```
 
-```
+```yaml
 sign:
   r_i: 0305ecb25beb96777915bfca1d93afcd5f47ec3fde91f67a81351635c911de5190
   y_i: 037ed4e1402919d5cf10a9a6f59cb464e015e3f5389d7b9269241f7ee7a8303696
@@ -217,6 +217,14 @@ shards:
       y_i: 037ed4e1402919d5cf10a9a6f59cb464e015e3f5389d7b9269241f7ee7a8303696
       z_i: 7625ae43cfaab5fa0a45b8988cd6c856109775b15a43e0105d1d7dc79673f6cb
 YAML
+```
+
+
+```yaml
+signature:
+  r: 02a1fa0f9d6d0d0ebf7b873684fa9b823008acfa3b1fbe18b7e0415a51d0a41a7a
+  y: 032189e442f10e6ac256d4e7560b285624e85dfefdd40a308608d4a78b1debb06a
+  z: 12c45cfd4387af7aa28735090772487ffe3689d30dddf6519fa45b245031ca74
 ```
 
 

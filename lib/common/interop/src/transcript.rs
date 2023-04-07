@@ -1,5 +1,3 @@
-use ff::PrimeField;
-use group::{Group, GroupEncoding};
 use serde::{Deserialize, Serialize};
 
 use crate::hash_function::HashFunction;

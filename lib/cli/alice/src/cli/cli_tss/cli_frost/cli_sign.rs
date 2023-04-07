@@ -78,7 +78,7 @@ where
 
         let nonce = (nonce.d.into_inner(), nonce.e.into_inner());
 
-        let (y_i, r_i, z_i) = ::frost_tss::sign::<F, G, H>(
+        let (y_i, r_i, z_i) = frost_tss::sign::<F, G, H>(
             s4_share.public_key.as_ref(),
             participant_id,
             s4_share.shamir_y.as_ref(),
