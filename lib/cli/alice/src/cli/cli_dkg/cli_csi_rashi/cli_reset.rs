@@ -15,15 +15,14 @@ pub struct CliReset<F, G, H> {
     _pd: PhantomData<(F, G, H)>,
 }
 
-impl<'a, F, G, H> CliRun<(&'a CliSciRashi<F, G, H>, &'a CliDkg<F, G, H>, &'a Cli<F, G, H>)>
-    for CliReset<F, G, H>
+impl<F, G, H> CliRun<(&CliSciRashi<F, G, H>, &CliDkg<F, G, H>, &Cli<F, G, H>)> for CliReset<F, G, H>
 where
     F: PrimeField,
     G: GroupEncoding,
 {
     fn run(
         &self,
-        (csi_rashi, _dkg, cli): (&'a CliSciRashi<F, G, H>, &'a CliDkg<F, G, H>, &'a Cli<F, G, H>),
+        (csi_rashi, _dkg, cli): (&CliSciRashi<F, G, H>, &CliDkg<F, G, H>, &Cli<F, G, H>),
     ) -> Result<(), AnyError> {
         if let Some(session) = csi_rashi.sessions_table(cli)?.remove(&csi_rashi.key_id)? {
             serde_yaml::to_writer(std::io::stdout().lock(), &json!({ "removed": session }))?;

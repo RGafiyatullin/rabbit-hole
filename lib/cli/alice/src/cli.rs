@@ -15,6 +15,7 @@ mod capabilities;
 
 mod cli_dkg;
 mod cli_storage;
+mod cli_tss;
 
 pub trait CliRun<Prev> {
     fn run(&self, prev: Prev) -> Result<(), AnyError>;
@@ -51,6 +52,7 @@ where
         match &self.cmd {
             Cmd::Storage(sub) => sub.run(self),
             Cmd::Dkg(sub) => sub.run(self),
+            Cmd::Tss(sub) => sub.run(self),
             _ => Err("not implemented".into()),
         }
     }
@@ -60,6 +62,6 @@ where
 enum Cmd<F, G, H> {
     Keys,
     Dkg(cli_dkg::CliDkg<F, G, H>),
-    Tss,
+    Tss(cli_tss::CliTss<F, G, H>),
     Storage(cli_storage::CliStorage),
 }

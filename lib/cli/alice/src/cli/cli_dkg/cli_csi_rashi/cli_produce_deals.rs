@@ -36,7 +36,7 @@ pub struct CliProduceDeals<F, G, H> {
     _pd: PhantomData<(F, G, H)>,
 }
 
-impl<'a, F, G, H> CliRun<(&'a CliSciRashi<F, G, H>, &'a CliDkg<F, G, H>, &'a Cli<F, G, H>)>
+impl<F, G, H> CliRun<(&CliSciRashi<F, G, H>, &CliDkg<F, G, H>, &Cli<F, G, H>)>
     for CliProduceDeals<F, G, H>
 where
     F: PrimeField,
@@ -44,7 +44,7 @@ where
 {
     fn run(
         &self,
-        (csi_rashi, _dkg, cli): (&'a CliSciRashi<F, G, H>, &'a CliDkg<F, G, H>, &'a Cli<F, G, H>),
+        (csi_rashi, _dkg, cli): (&CliSciRashi<F, G, H>, &CliDkg<F, G, H>, &Cli<F, G, H>),
     ) -> Result<(), AnyError> {
         let key_id = &csi_rashi.key_id;
 

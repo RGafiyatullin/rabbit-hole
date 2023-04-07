@@ -32,12 +32,12 @@ enum Cmd<F, G, H> {
     Reset(cli_reset::CliReset<F, G, H>),
 }
 
-impl<'a, F, G, H> CliRun<(&'a CliDkg<F, G, H>, &'a Cli<F, G, H>)> for CliSciRashi<F, G, H>
+impl<F, G, H> CliRun<(&CliDkg<F, G, H>, &Cli<F, G, H>)> for CliSciRashi<F, G, H>
 where
     F: PrimeField,
     G: Group<Scalar = F> + GroupEncoding,
 {
-    fn run(&self, (dkg, cli): (&'a CliDkg<F, G, H>, &'a Cli<F, G, H>)) -> Result<(), AnyError> {
+    fn run(&self, (dkg, cli): (&CliDkg<F, G, H>, &Cli<F, G, H>)) -> Result<(), AnyError> {
         match &self.cmd {
             Cmd::ProduceDeals(sub) => sub.run((self, dkg, cli)),
             Cmd::AggregateDeals(sub) => sub.run((self, dkg, cli)),

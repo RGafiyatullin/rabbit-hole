@@ -17,8 +17,8 @@ enum Cmd {
     Init(cli_init::CliInit),
 }
 
-impl<'a, F, G, H> CliRun<&'a Cli<F, G, H>> for CliStorage {
-    fn run(&self, cli: &'a Cli<F, G, H>) -> Result<(), AnyError> {
+impl<F, G, H> CliRun<&Cli<F, G, H>> for CliStorage {
+    fn run(&self, cli: &Cli<F, G, H>) -> Result<(), AnyError> {
         match &self.cmd {
             Cmd::Init(sub) => sub.run((self, cli)),
         }
