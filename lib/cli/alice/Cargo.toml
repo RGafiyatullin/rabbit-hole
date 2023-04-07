@@ -1,0 +1,38 @@
+[package]
+name = "rabbit-hole-cli-alice"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+base64 = {workspace = true}
+digest = {workspace = true}
+dotenv = {workspace = true}
+ff = {workspace = true}
+group = {workspace = true}
+hex = {workspace = true}
+lockfile = {workspace = true}
+rand = {workspace = true}
+securestore = {workspace = true}
+serde = {workspace = true, features = ["derive"]}
+serde_json = {workspace = true}
+serde_yaml = {workspace = true}
+structopt = {workspace = true}
+tokio = {workspace = true, features = ["rt", "macros", "fs"]}
+tracing = {workspace = true}
+tracing-subscriber = {workspace = true}
+
+curve25519 = {workspace = true}
+k256 = {workspace = true}
+sha2 = {workspace = true}
+sha3 = {workspace = true}
+
+csi-rashi-dkg = {workspace = true, features = ["std-error"]}
+frost-tss = {workspace = true, features = ["std-error"]}
+utils = {workspace = true}
+
+common-logging = {workspace = true}
+common-interop = {workspace = true}
+
+cli-storage = {workspace = true}

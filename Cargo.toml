@@ -13,10 +13,13 @@ ff = "^0.13"
 group = "^0.13"
 heapless = "^0.7"
 hex = "^0.4"
+lockfile = "^0.4"
 rand = "^0.8"
 securestore = "^0.100"
 serde = "^1"
 serde_json = "^1"
+serde_yaml = "^0.9"
+sled = "^0.34"
 structopt = "^0.3"
 subtle = "^2.5"
 thiserror = "^1"
@@ -38,4 +41,8 @@ schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit
 shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
 utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-primitives-utils"}
 
-logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}
+common-interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
+common-logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}
+
+cli-alice = {path = "lib/cli/alice", package = "rabbit-hole-cli-alice"}
+cli-storage = {path = "lib/cli/storage", package = "rabbit-hole-cli-storage"}

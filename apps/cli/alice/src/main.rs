@@ -1,11 +1,8 @@
-type AnyError = Box<dyn std::error::Error + Send + Sync + 'static>;
+use cli_alice::cli::Cli;
+use cli_alice::AnyError;
 
-mod cli;
-mod common;
-mod logging;
-mod namespace;
+fn main() -> Result<(), AnyError> {
+    let cli = Cli::bootstrap(std::env::args());
 
-#[tokio::main(flavor = "current_thread")]
-async fn main() -> Result<(), AnyError> {
-    <cli::Cli as structopt::StructOpt>::from_args().run().await
+    cli.run(())
 }
