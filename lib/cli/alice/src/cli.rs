@@ -1,18 +1,19 @@
 use std::marker::PhantomData;
 use std::path::PathBuf;
-use std::str::FromStr;
 
 use digest::Digest;
 use ff::PrimeField;
-use group::Group;
+use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use crate::common::{Curve, HashFunction};
+use common_interop::types::{Curve, HashFunction};
+
 use crate::AnyError;
 
 mod bootstrap;
-mod storage;
+mod capabilities;
 
+mod cli_dkg;
 mod cli_storage;
 
 pub trait CliRun<Prev> {
@@ -31,7 +32,7 @@ pub struct Cli<F, G, H> {
     pub storage_path: Option<PathBuf>,
 
     #[structopt(subcommand)]
-    cmd: Cmd,
+    cmd: Cmd<F, G, H>,
 
     #[structopt(skip)]
     _pd: PhantomData<(F, G, H)>,
@@ -40,25 +41,25 @@ pub struct Cli<F, G, H> {
 impl<F, G, H> CliRun<()> for Cli<F, G, H>
 where
     F: PrimeField,
-    G: Group<Scalar = F>,
+    G: Group<Scalar = F> + GroupEncoding,
     H: Digest,
 {
     fn run(&self, (): ()) -> Result<(), AnyError> {
-        eprintln!("F: {}", std::any::type_name::<F>());
-        eprintln!("G: {}", std::any::type_name::<G>());
-        eprintln!("H: {}", std::any::type_name::<H>());
-
+        // eprintln!("F: {}", std::any::type_name::<F>());
+        // eprintln!("G: {}", std::any::type_name::<G>());
+        // eprintln!("H: {}", std::any::type_name::<H>());
         match &self.cmd {
             Cmd::Storage(sub) => sub.run(self),
+            Cmd::Dkg(sub) => sub.run(self),
             _ => Err("not implemented".into()),
         }
     }
 }
 
 #[derive(Debug, StructOpt)]
-enum Cmd {
+enum Cmd<F, G, H> {
     Keys,
-    Dkg,
+    Dkg(cli_dkg::CliDkg<F, G, H>),
     Tss,
     Storage(cli_storage::CliStorage),
 }

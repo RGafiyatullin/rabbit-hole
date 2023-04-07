@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
-use cli_storage::{BoxedStorage, StorageOpenBoxed};
-use cli_storage_sled::StorageSled;
+use cli_storage::Storage;
+use rand::RngCore;
 
 use crate::AnyError;
 
@@ -19,10 +19,15 @@ impl<F, D, H> Cli<F, D, H> {
         }
     }
 
-    pub fn open_storage(&self) -> Result<BoxedStorage, AnyError> {
+    pub fn open_storage(&self) -> Result<Storage, AnyError> {
         let path = self.storage_path()?;
-        eprintln!("initializing sled-storage at {:?}", path);
-        let storage = StorageSled::open_boxed(path.to_str().ok_or("invalid path")?)?;
+        let storage = Storage::open(path.to_str().ok_or("invalid path")?)?;
         Ok(storage)
+    }
+}
+
+impl<F, D, H> Cli<F, D, H> {
+    pub fn rng(&self) -> impl RngCore {
+        rand::rngs::OsRng
     }
 }

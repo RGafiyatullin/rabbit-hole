@@ -2,10 +2,10 @@ use std::ffi::OsString;
 
 use digest::Digest;
 use ff::PrimeField;
-use group::Group;
+use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use crate::common::{Curve, HashFunction};
+use common_interop::types::{Curve, HashFunction};
 
 use super::{Cli, CliRun};
 
@@ -35,7 +35,7 @@ impl Cli<(), (), ()> {
     ) -> Box<dyn CliRun<()>>
     where
         F: PrimeField,
-        G: Group<Scalar = F>,
+        G: Group<Scalar = F> + GroupEncoding,
     {
         match self.hash_function {
             HashFunction::Sha3_256 => self.run_2::<F, G, sha3::Sha3_256>(args),
@@ -47,7 +47,7 @@ impl Cli<(), (), ()> {
     ) -> Box<dyn CliRun<()>>
     where
         F: PrimeField + 'static,
-        G: Group<Scalar = F> + 'static,
+        G: Group<Scalar = F> + GroupEncoding + 'static,
         H: Digest + 'static,
     {
         Box::new(<Cli<F, G, H> as StructOpt>::from_iter(args))

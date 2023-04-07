@@ -1,8 +1,8 @@
-use core::fmt;
+use core::{fmt, str};
+use std::hash::Hash;
 
 use group::GroupEncoding;
 use serde::de::Error as DeError;
-use serde::ser::Error as SerError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use super::Point;
@@ -31,6 +31,15 @@ impl<G> Point<G> {
     }
 }
 
+impl<G> Hash for Point<G>
+where
+    G: GroupEncoding,
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.to_bytes().as_ref().hash(state)
+    }
+}
+
 impl<G> fmt::Display for Point<G>
 where
     G: GroupEncoding,
@@ -42,10 +51,28 @@ where
         let repr = repr.as_ref();
         let buf = &mut buf[0..(repr.len() * 2)];
 
-        hex::encode_to_slice(repr, buf).map_err(|_| Default::default())?;
-        let s = core::str::from_utf8(&buf).map_err(|_| Default::default())?;
+        hex::encode_to_slice(repr, buf).map_err(|_| fmt::Error)?;
+        let s = core::str::from_utf8(&buf).map_err(|_| fmt::Error)?;
 
         write!(f, "{}", s)
+    }
+}
+
+impl<G> str::FromStr for Point<G>
+where
+    G: GroupEncoding,
+{
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut repr: G::Repr = Default::default();
+        hex::decode_to_slice(s, repr.as_mut()).map_err(|_| ())?;
+        let point = G::from_bytes(&repr);
+
+        if point.is_some().unwrap_u8() == 1 {
+            Ok(Self(point.unwrap()))
+        } else {
+            Err(())
+        }
     }
 }
 
@@ -56,17 +83,7 @@ impl<G: GroupEncoding> Serialize for Point<G> {
     where
         S: Serializer,
     {
-        let mut buf = [0u8; SERDE_BUF_SIZE];
-
-        let repr = self.0.to_bytes();
-        let repr = repr.as_ref();
-        let buf = &mut buf[0..(repr.len() * 2)];
-
-        hex::encode_to_slice(repr, buf).map_err(<S::Error as SerError>::custom)?;
-
-        core::str::from_utf8(&buf)
-            .map_err(<S::Error as SerError>::custom)?
-            .serialize(serializer)
+        hex::encode(self.0.to_bytes().as_ref()).serialize(serializer)
     }
 }
 
@@ -75,7 +92,7 @@ impl<'de, G: GroupEncoding> Deserialize<'de> for Point<G> {
     where
         D: Deserializer<'de>,
     {
-        let hex: &'de str = Deserialize::deserialize(deserializer)?;
+        let hex: String = Deserialize::deserialize(deserializer)?;
         let mut repr: G::Repr = Default::default();
         hex::decode_to_slice(hex, repr.as_mut()).map_err(<D::Error as DeError>::custom)?;
         let point = G::from_bytes(&repr);

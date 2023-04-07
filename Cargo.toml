@@ -46,4 +46,3 @@ common-logging = {path = "lib/common/logging", package = "rabbit-hole-common-log
 
 cli-alice = {path = "lib/cli/alice", package = "rabbit-hole-cli-alice"}
 cli-storage = {path = "lib/cli/storage", package = "rabbit-hole-cli-storage"}
-cli-storage-sled = {path = "lib/cli/storage-sled", package = "rabbit-hole-cli-storage-sled"}

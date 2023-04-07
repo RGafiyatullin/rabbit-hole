@@ -1,0 +1,79 @@
+
+# CSI-RAShi DKG Example
+
+## Generate Deals
+
+```shell
+target/release/alice dkg csi-rashi -k k0:1 produce-deals <<EOF
+threshold: 2
+own_shamir_x: 01
+shamir_xs:
+    - 02
+    - 03
+EOF
+```
+
+```yaml
+produce_deals:
+  commitment:
+  - 020b51e3af094e1af627edbfc5fddf012c7e07bbce83ea100b920550fa8f40f2b2
+  - 03034b2e2135d0af4ab5544fe8886c780b51e097c89610f14c1acc35a848caff6c
+  secret_deals:
+    0200000000000000000000000000000000000000000000000000000000000000: ca784d003f967bfd9af65843fc80ec3323f12e53bc590e91ed4be71f3bff128b
+    0300000000000000000000000000000000000000000000000000000000000000: 3ecd1f8fafa6f33c46e36def849e64d0f0c7ba58178c9e0964e3f6f94173aaf6
+  threshold: 2
+```
+
+---
+
+
+```shell
+target/release/alice dkg csi-rashi -k k0:2 produce-deals <<EOF
+threshold: 2
+own_shamir_x: 02
+shamir_xs:
+    - 01
+    - 03
+EOF
+```
+
+```yaml
+produce_deals:
+  commitment:
+  - 02928264b900528e9100a003bf2d210e266cf38257055b0d2bde5780db20943e18
+  - 03e3a52d0d127c6c7c46e5e809caafb1650c8c866bc1ad5628b1de99dd03e3d16c
+  secret_deals:
+    0100000000000000000000000000000000000000000000000000000000000000: 6942515ec23fd63d0f93611ba50329c09a3147a5db5114f5bffba83a55f237f7
+    0300000000000000000000000000000000000000000000000000000000000000: 5f7b498e104f0aa79dbfc1b698cdd2f101d3d1f7be6391d31028c14388b25571
+  threshold: 2
+```
+
+---
+
+```shell
+target/release/alice dkg csi-rashi -k k0:3 produce-deals <<EOF
+threshold: 2
+own_shamir_x: 03
+shamir_xs:
+    - 01
+    - 02
+EOF
+```
+
+```yaml
+produce_deals:
+  commitment:
+  - 038215eadedbd0bbe501274796bfd299dc104e4e00653198a34af7ea31d8d1fbaa
+  - 037443d36f4d5ae9788fb8de4ee106027f0151e69a8365ff8f5a6f172c82cbbab5
+  secret_deals:
+    0100000000000000000000000000000000000000000000000000000000000000: 554f002a444e7772f7905ed58abfa8ef693124cfc5bc0fbbfbc90f6f3e923fec
+    0200000000000000000000000000000000000000000000000000000000000000: f2bcbf5a2bb41538e5e1287228145d011351b15df81745540311fc08b6523989
+  threshold: 2
+```
+
+
+---
+---
+
+## Aggregate Deals
+

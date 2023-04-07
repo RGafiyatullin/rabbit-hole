@@ -1,9 +1,6 @@
 use std::{fmt, str};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum HashFunction {
-    Sha3_256,
-}
+use super::HashFunction;
 
 const SHA3_256: &str = "sha3-256";
 

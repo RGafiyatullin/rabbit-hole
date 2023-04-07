@@ -16,20 +16,21 @@ lockfile = {workspace = true}
 rand = {workspace = true}
 securestore = {workspace = true}
 serde = {workspace = true, features = ["derive"]}
+serde_json = {workspace = true}
 serde_yaml = {workspace = true}
 structopt = {workspace = true}
 tokio = {workspace = true, features = ["rt", "macros", "fs"]}
 tracing = {workspace = true}
 tracing-subscriber = {workspace = true}
 
-
 curve25519 = {workspace = true}
 k256 = {workspace = true}
 sha2 = {workspace = true}
 sha3 = {workspace = true}
 
+csi-rashi-dkg = {workspace = true}
 
 common-logging = {workspace = true}
+common-interop = {workspace = true}
 
 cli-storage = {workspace = true}
-cli-storage-sled = {workspace = true}

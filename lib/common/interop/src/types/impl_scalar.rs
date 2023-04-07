@@ -1,6 +1,8 @@
-use core::fmt;
+use core::{fmt, str};
+use std::collections::HashMap;
+use std::hash::Hash;
 
-use ff::{Field, PrimeField};
+use ff::PrimeField;
 use serde::de::Error as DeError;
 use serde::ser::Error as SerError;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -31,6 +33,15 @@ impl<F> Scalar<F> {
     }
 }
 
+impl<F> Hash for Scalar<F>
+where
+    F: PrimeField,
+{
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.to_repr().as_ref().hash(state)
+    }
+}
+
 const SERDE_BUF_SIZE: usize = 128;
 
 impl<F> fmt::Display for Scalar<F>
@@ -43,10 +54,29 @@ where
 
         let buf = &mut buf[0..len];
 
-        hex::encode_to_slice(self.0.to_repr().as_ref(), buf).map_err(|_| Default::default())?;
-        let s = core::str::from_utf8(&buf[0..len]).map_err(|_| Default::default())?;
+        hex::encode_to_slice(self.0.to_repr().as_ref(), buf).map_err(|_| fmt::Error)?;
+        let s = core::str::from_utf8(&buf[0..len]).map_err(|_| fmt::Error)?;
 
         write!(f, "{}", s)
+    }
+}
+
+impl<F> str::FromStr for Scalar<F>
+where
+    F: PrimeField,
+{
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut repr: F::Repr = Default::default();
+        hex::decode_to_slice(s, &mut repr.as_mut()[0..(s.len() / 2)]).map_err(|_| ())?;
+        let scalar = F::from_repr(repr);
+
+        if scalar.is_some().unwrap_u8() == 1 {
+            Ok(Self(scalar.unwrap()))
+        } else {
+            Err(())
+        }
     }
 }
 
@@ -55,17 +85,7 @@ impl<F: PrimeField> Serialize for Scalar<F> {
     where
         S: Serializer,
     {
-        let mut buf = [0u8; SERDE_BUF_SIZE];
-        let len = F::NUM_BITS as usize / 8 * 2;
-
-        let buf = &mut buf[0..len];
-
-        hex::encode_to_slice(self.0.to_repr().as_ref(), buf)
-            .map_err(<S::Error as SerError>::custom)?;
-
-        core::str::from_utf8(&buf[0..len])
-            .map_err(<S::Error as SerError>::custom)?
-            .serialize(serializer)
+        hex::encode(self.0.to_repr().as_ref()).serialize(serializer)
     }
 }
 
@@ -74,9 +94,11 @@ impl<'de, F: PrimeField> Deserialize<'de> for Scalar<F> {
     where
         D: Deserializer<'de>,
     {
-        let hex: &'de str = Deserialize::deserialize(deserializer)?;
+        let hex: String = Deserialize::deserialize(deserializer)?;
+
         let mut repr: F::Repr = Default::default();
-        hex::decode_to_slice(hex, repr.as_mut()).map_err(<D::Error as DeError>::custom)?;
+        hex::decode_to_slice(hex.as_str(), &mut repr.as_mut()[0..hex.len() / 2])
+            .map_err(<D::Error as DeError>::custom)?;
         let scalar =
             F::from_repr_vartime(repr).ok_or(<D::Error as DeError>::custom("invalid repr"))?;
 
@@ -85,10 +107,26 @@ impl<'de, F: PrimeField> Deserialize<'de> for Scalar<F> {
 }
 
 #[test]
-fn scalar_serde() {
+fn scalar_serde_1() {
+    use ff::Field;
+
     let s_in: Scalar<_> = k256::Scalar::random(&mut rand::rngs::OsRng).into();
     let json = serde_json::to_string_pretty(&s_in).expect("ser");
     let s_out: Scalar<k256::Scalar> = serde_json::from_str(&json).expect("de");
 
     assert_eq!(s_in, s_out);
+}
+
+#[test]
+fn scalar_serde_2() {
+    let s: Scalar<k256::Scalar> = "01".parse().expect("parse");
+    let s: Scalar<k256::Scalar> = serde_json::from_str("\"01\"").expect("de");
+}
+
+#[test]
+fn scalar_serde_3() {
+    let map: HashMap<Scalar<k256::Scalar>, u64> =
+        [(Scalar(2u64.into()), 2), (Scalar(4u64.into()), 4)].into_iter().collect();
+    let json = serde_json::to_string_pretty(&map).expect("ser");
+    eprintln!("{}", json);
 }
