@@ -48,6 +48,10 @@ where
     ) -> Result<(), AnyError> {
         let key_id = &csi_rashi.key_id;
 
+        if csi_rashi.s4_shares_table(cli)?.get(key_id)?.is_some() {
+            return Err("The key with such id already exists".into())
+        }
+
         if csi_rashi.sessions_table(cli)?.get(key_id)?.is_some() {
             return Err("The deals have already been produced for this key".into())
         }

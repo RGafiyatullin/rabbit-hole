@@ -58,20 +58,17 @@ impl<N, T> Table<N, T> {
     }
 
     pub fn select(&self, prefix: &str) -> impl Iterator<Item = Result<(String, T), AnyError>> + '_
-    where T: DeserializeOwned
+    where
+        T: DeserializeOwned,
     {
-        self.tree
-            .scan_prefix(prefix)
-            .map(|result| 
-                result
-                    .map_err(AnyError::from)
-                    .and_then(|(key, value)| {
-                        let key = String::from_utf8(key.as_ref().to_owned())?;
-                        let value: T = self.storage.deserialize(value.as_ref())?;
+        self.tree.scan_prefix(prefix).map(|result| {
+            result.map_err(AnyError::from).and_then(|(key, value)| {
+                let key = String::from_utf8(key.as_ref().to_owned())?;
+                let value: T = self.storage.deserialize(value.as_ref())?;
 
-                        Ok((key, value))
-                    })
-            )
+                Ok((key, value))
+            })
+        })
     }
 
     pub fn dump(&self) -> Result<(), AnyError> {
