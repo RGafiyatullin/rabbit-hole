@@ -16,6 +16,7 @@ mod bootstrap;
 mod capabilities;
 
 mod cli_dkg;
+mod cli_keys;
 mod cli_tss;
 
 pub trait CliRun<Prev> {
