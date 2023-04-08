@@ -57,6 +57,23 @@ impl<N, T> Table<N, T> {
         Ok(Some(entry))
     }
 
+    pub fn select(&self, prefix: &str) -> impl Iterator<Item = Result<(String, T), AnyError>> + '_
+    where T: DeserializeOwned
+    {
+        self.tree
+            .scan_prefix(prefix)
+            .map(|result| 
+                result
+                    .map_err(AnyError::from)
+                    .and_then(|(key, value)| {
+                        let key = String::from_utf8(key.as_ref().to_owned())?;
+                        let value: T = self.storage.deserialize(value.as_ref())?;
+
+                        Ok((key, value))
+                    })
+            )
+    }
+
     pub fn dump(&self) -> Result<(), AnyError> {
         eprintln!("Dumping: {:?}", std::str::from_utf8(self.tree.name().as_ref()));
         for k in self.tree.iter() {

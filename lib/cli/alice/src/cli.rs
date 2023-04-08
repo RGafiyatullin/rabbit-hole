@@ -58,14 +58,14 @@ where
         match &self.cmd {
             Cmd::Dkg(sub) => sub.run(self),
             Cmd::Tss(sub) => sub.run(self),
-            _ => Err("not implemented".into()),
+            Cmd::Keys(sub) => sub.run(self),
         }
     }
 }
 
 #[derive(Debug, StructOpt)]
 enum Cmd<F, G, H> {
-    Keys,
+    Keys(cli_keys::CliKeys<F, G, H>),
     Dkg(cli_dkg::CliDkg<F, G, H>),
     Tss(cli_tss::CliTss<F, G, H>),
 }
