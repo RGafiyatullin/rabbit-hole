@@ -40,6 +40,7 @@ feldman-vsss = {path = "lib/crypto-primitives/feldman-vsss", package = "rabbit-h
 frost-tss = {path = "lib/crypto-primitives/frost-tss", package = "rabbit-hole-crypto-primitives-frost-tss"}
 schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit-hole-crypto-primitives-schnorr-proof"}
 shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
+simplest-ot = {path = "lib/crypto-primitives/simplest-ot", package = "rabbit-hole-crypto-primitives-simplest-ot"}
 utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-primitives-utils"}
 
 common-interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
