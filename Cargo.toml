@@ -35,6 +35,7 @@ sha2 = "^0.10"
 sha3 = "^0.10"
 
 csi-rashi-dkg = {path = "lib/crypto-primitives/csi-rashi-dkg", package = "rabbit-hole-crypto-primitives-csi-rashi-dkg"}
+dkls-tss = {path = "lib/crypto-primitives/dkls-tss", package = "rabbit-hole-crypto-primitives-dkls-tss"}
 feldman-vsss = {path = "lib/crypto-primitives/feldman-vsss", package = "rabbit-hole-crypto-primitives-feldman-vsss"}
 frost-tss = {path = "lib/crypto-primitives/frost-tss", package = "rabbit-hole-crypto-primitives-frost-tss"}
 schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit-hole-crypto-primitives-schnorr-proof"}
