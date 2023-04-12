@@ -1,0 +1,17 @@
+[package]
+name = "rabbit-hole-crypto-primitives-hmrt-mta"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+group = {workspace = true}
+ff = {workspace = true}
+rand = {workspace = true}
+
+simplest-ot = {workspace = true}
+
+[dev-dependencies]
+k256 = {workspace = true}
+curve25519 = {workspace = true}
