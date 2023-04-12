@@ -64,15 +64,15 @@ pub fn receiver_ot_choose<F, G, const K: usize>(
     assert_eq!(shared.iter().zip(t.iter()).map(|(v, t)| *v * t).sum::<F>(), *secret_mult_share);
 }
 
-pub fn sender_ot_reply<F, G, const K: usize>(
+pub fn sender_ot_reply<F, G, E, const K: usize>(
     secret_mult_share: &F,
 
     delta: &[F],
     ot_a: &[F],
     ot_pb: &[G],
 
-    encrypted: &mut [[F; 2]],
-    f_encrypt: impl Fn(&G, &F) -> F,
+    encrypted: &mut [[E; 2]],
+    f_encrypt: impl Fn(&G, &F) -> E,
 ) where
     F: PrimeField,
     G: Group<Scalar = F>,
@@ -85,7 +85,7 @@ pub fn sender_ot_reply<F, G, const K: usize>(
     assert_eq!(encrypted.len(), ell);
 
     let options = options_neg_or_pos::<F>();
-    let mut keys = [G::identity(), G::identity()];
+    let mut keys = [G::identity(); 2];
 
     delta
         .iter()
@@ -93,12 +93,13 @@ pub fn sender_ot_reply<F, G, const K: usize>(
         .zip(ot_pb.iter())
         .zip(encrypted.iter_mut())
         .for_each(|(((d, ot_a), ot_pb), encrypted)| {
-            simplest_ot::sender_keys(ot_a, ot_pb, &options[..], &mut keys);
+            simplest_ot::sender_keys(ot_a, ot_pb, &options[..], &mut keys[..]);
 
             let options = options.map(|t| t * secret_mult_share + d);
 
-            encrypted[0] = f_encrypt(&keys[0], &options[0]);
-            encrypted[1] = f_encrypt(&keys[1], &options[1]);
+            for choice in [0, 1] {
+                encrypted[choice] = f_encrypt(&keys[choice], &options[choice]);
+            }
         });
 }
 
@@ -113,12 +114,12 @@ where
     delta.iter().zip(shared.iter()).map(|(d, s)| *d + s).sum::<F>().neg()
 }
 
-pub fn receiver_additive_share<F, G, const K: usize>(
+pub fn receiver_additive_share<F, G, E, const K: usize>(
     shared: &[F],
-    encrypted: &[[F; 2]],
+    encrypted: &[[E; 2]],
     t: &[F],
     ot_rkey: &[G],
-    f_decrypt: impl Fn(&G, &F) -> F,
+    f_decrypt: impl Fn(&G, &E) -> F,
 ) -> F
 where
     F: PrimeField,

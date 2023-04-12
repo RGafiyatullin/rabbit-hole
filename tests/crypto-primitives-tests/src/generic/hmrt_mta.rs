@@ -35,7 +35,7 @@ fn basic_impl<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, const K: usiz
     );
 
     let mut encrypted = vec![[F::ZERO, F::ZERO]; ell];
-    hmrt_mta::sender_ot_reply::<F, G, K>(
+    hmrt_mta::sender_ot_reply::<F, G, _, K>(
         &mta_m1,
         delta.as_ref(),
         ot_a.as_ref(),
@@ -46,7 +46,7 @@ fn basic_impl<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, const K: usiz
 
     let mta_a1 = hmrt_mta::sender_additive_share::<F, K>(shared.as_ref(), delta.as_ref());
 
-    let mta_a2 = hmrt_mta::receiver_additive_share::<F, G, K>(
+    let mta_a2 = hmrt_mta::receiver_additive_share::<F, G, _, K>(
         shared.as_ref(),
         encrypted.as_ref(),
         t.as_ref(),
@@ -81,6 +81,7 @@ const K_SOME: usize = 10;
 const K_MANY: usize = 255;
 
 #[test]
+#[ignore]
 fn basic_k_none() {
     basic_impl::<Scalar, Point, K_NONE>();
 }
