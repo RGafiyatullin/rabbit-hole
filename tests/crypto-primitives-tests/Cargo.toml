@@ -20,4 +20,5 @@ frost-tss = {workspace = true}
 hmrt-mta = {workspace = true}
 shamir-sss = {workspace = true}
 schnorr-proof = {workspace = true}
+simplest-ot = {workspace = true}
 utils = {workspace = true}
