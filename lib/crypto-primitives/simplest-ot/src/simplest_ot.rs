@@ -13,27 +13,29 @@ where
     (a, pa)
 }
 
-pub fn receiver_choose<F, G>(rng: impl RngCore, pa: &G, choice: &F) -> (G, G)
+pub fn receiver_choose<F, G>(rng: impl RngCore, pa: &G, options: &[F], choice: usize) -> (G, G)
 where
     F: PrimeField,
     G: Group<Scalar = F>,
 {
     let b = F::random(rng);
-    let offset = *pa * choice;
+    let offset = *pa * &options[choice];
     let pb = offset + G::generator() * b;
     let key = *pa * b;
 
     (key, pb)
 }
 
-pub fn sender_keys<F, G>(a: &F, pb: &G, keys: &mut [G])
+pub fn sender_keys<F, G>(a: &F, pb: &G, options: &[F], keys: &mut [G])
 where
     F: PrimeField,
     G: Group<Scalar = F>,
 {
+    assert_eq!(options.len(), keys.len());
+
     let pa = G::generator() * a;
-    keys.iter_mut().enumerate().for_each(|(choice, key)| {
-        let offset = pa * F::from(choice as u64);
+    options.iter().zip(keys.iter_mut()).for_each(|(choice, key)| {
+        let offset = pa * choice;
         *key = (*pb - offset) * a;
     });
 }
