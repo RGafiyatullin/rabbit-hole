@@ -1,4 +1,3 @@
-
 use core::ops::Neg;
 use std::vec::Vec;
 
@@ -63,7 +62,6 @@ fn one_of_items_plus_or_minus_one_ristretto25519() {
     every_choice_in_one_of::<F, G>([minus_one, plus_one]);
 }
 
-
 #[test]
 fn one_of_items_zero_through_255_secp256k1() {
     type F = k256::Scalar;
@@ -76,7 +74,7 @@ fn one_of_items_zero_through_255_secp256k1() {
 fn one_of_items_zero_through_255_ed25519() {
     type F = curve25519::scalar::Scalar;
     type G = curve25519::edwards::EdwardsPoint;
-    
+
     every_choice_in_one_of::<F, G>(0u64..255);
 }
 
@@ -84,6 +82,6 @@ fn one_of_items_zero_through_255_ed25519() {
 fn one_of_items_zero_through_255_ristretto25519() {
     type F = curve25519::scalar::Scalar;
     type G = curve25519::ristretto::RistrettoPoint;
-    
+
     every_choice_in_one_of::<F, G>(0u64..255);
 }
