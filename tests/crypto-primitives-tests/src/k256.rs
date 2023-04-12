@@ -19,5 +19,5 @@ mod frost_tss;
 #[path = "generic/simplest_ot.rs"]
 mod simplest_ot;
 
-#[path = "generic/hmrt_mta.rs"]
+#[path = "generic/hmrt_mta_with_k.rs"]
 mod hmrt_mta;
