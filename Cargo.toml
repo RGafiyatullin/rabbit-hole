@@ -38,6 +38,7 @@ csi-rashi-dkg = {path = "lib/crypto-primitives/csi-rashi-dkg", package = "rabbit
 dkls-tss = {path = "lib/crypto-primitives/dkls-tss", package = "rabbit-hole-crypto-primitives-dkls-tss"}
 feldman-vsss = {path = "lib/crypto-primitives/feldman-vsss", package = "rabbit-hole-crypto-primitives-feldman-vsss"}
 frost-tss = {path = "lib/crypto-primitives/frost-tss", package = "rabbit-hole-crypto-primitives-frost-tss"}
+hmrt-mta = {path = "lib/crypto-primitives/hmrt-mta", package = "rabbit-hole-crypto-primitives-hmrt-mta"}
 schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit-hole-crypto-primitives-schnorr-proof"}
 shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
 simplest-ot = {path = "lib/crypto-primitives/simplest-ot", package = "rabbit-hole-crypto-primitives-simplest-ot"}
