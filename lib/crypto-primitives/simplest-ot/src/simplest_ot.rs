@@ -19,7 +19,7 @@ where
     G: Group<Scalar = F>,
 {
     let b = F::random(rng);
-    let offset = *pa * &options[choice];
+    let offset = *pa * options[choice];
     let pb = offset + G::generator() * b;
     let key = *pa * b;
 
