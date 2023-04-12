@@ -16,11 +16,11 @@ pub fn sender_init<F, G, const K: usize>(
     assert_eq!(ot_a.len(), ell);
     assert_eq!(ot_pa.len(), ell);
 
-    delta.iter_mut().for_each(|d| *d = F::random(&mut rng));
+    fill_random(&mut rng, delta);
 
-    ot_a.iter_mut().zip(ot_pa.iter_mut()).for_each(|(a, pa)| {
-        (*a, *pa) = simplest_ot::sender_init(&mut rng);
-    });
+    for i in 0..ell {
+        (ot_a[i], ot_pa[i]) = simplest_ot::sender_init(&mut rng);
+    }
 }
 
 pub fn receiver_ot_choose<F, G, const K: usize>(
@@ -45,23 +45,21 @@ pub fn receiver_ot_choose<F, G, const K: usize>(
 
     let options = options_neg_or_pos::<F>();
 
-    ot_pa
-        .iter()
-        .zip(ot_pb.iter_mut())
-        .zip(ot_rkey.iter_mut())
-        .zip(t.iter_mut())
-        .for_each(|(((pa, pb), rkey), t)| {
-            let choice = F::random(&mut rng).is_even().unwrap_u8() as usize;
-            (*rkey, *pb) = simplest_ot::receiver_choose(&mut rng, pa, &options[..], choice);
-            *t = options[choice];
-        });
+    for i in 0..ell {
+        let choice = rng.next_u32() as usize % 2;
+        (ot_rkey[i], ot_pb[i]) =
+            simplest_ot::receiver_choose(&mut rng, &ot_pa[i], &options, choice);
+        t[i] = options[choice];
+    }
 
-    shared.iter_mut().skip(1).for_each(|v| *v = F::random(&mut rng));
-    let head =
-        *secret_mult_share - shared.iter().zip(t.iter()).map(|(v, t)| *v * t).skip(1).sum::<F>();
-    shared.iter_mut().zip(t.iter()).take(1).for_each(|(v, t)| *v = head * t);
+    fill_random(&mut rng, shared);
+    let attempt: F = corner_brackets_product(shared.iter().copied(), (0..ell).map(|i| t[i]));
+    shared[0] += t[0] * (*secret_mult_share - attempt);
 
-    assert_eq!(shared.iter().zip(t.iter()).map(|(v, t)| *v * t).sum::<F>(), *secret_mult_share);
+    assert_eq!(
+        corner_brackets_product(shared.iter().copied(), (0..ell).map(|i| t[i])),
+        *secret_mult_share
+    );
 }
 
 pub fn sender_ot_reply<F, G, E, const K: usize>(
@@ -87,20 +85,14 @@ pub fn sender_ot_reply<F, G, E, const K: usize>(
     let options = options_neg_or_pos::<F>();
     let mut keys = [G::identity(); 2];
 
-    delta
-        .iter()
-        .zip(ot_a.iter())
-        .zip(ot_pb.iter())
-        .zip(encrypted.iter_mut())
-        .for_each(|(((d, ot_a), ot_pb), encrypted)| {
-            simplest_ot::sender_keys(ot_a, ot_pb, &options[..], &mut keys[..]);
+    for i in 0..ell {
+        simplest_ot::sender_keys(&ot_a[i], &ot_pb[i], options.as_ref(), keys.as_mut());
 
-            let options = options.map(|t| t * secret_mult_share + d);
-
-            for choice in [0, 1] {
-                encrypted[choice] = f_encrypt(&keys[choice], &options[choice]);
-            }
-        });
+        let options = options.map(|t| t * secret_mult_share + delta[i]);
+        for choice in [0, 1] {
+            encrypted[i][choice] = f_encrypt(&keys[choice], &options[choice]);
+        }
+    }
 }
 
 pub fn sender_additive_share<F, const K: usize>(shared: &[F], delta: &[F]) -> F
@@ -111,7 +103,7 @@ where
     assert_eq!(delta.len(), ell);
     assert_eq!(shared.len(), ell);
 
-    delta.iter().zip(shared.iter()).map(|(d, s)| *d + s).sum::<F>().neg()
+    corner_brackets_product(shared.iter().copied(), delta.iter().copied()).neg()
 }
 
 pub fn receiver_additive_share<F, G, E, const K: usize>(
@@ -138,9 +130,23 @@ where
         f_decrypt(key, encrypted)
     });
 
-    shared.iter().zip(z).map(|(s, z)| z * s).sum::<F>()
+    corner_brackets_product(shared.iter().copied(), z)
 }
 
 fn options_neg_or_pos<F: Field>() -> [F; 2] {
     [F::ONE.neg(), F::ONE]
+}
+
+fn corner_brackets_product<F>(
+    left: impl IntoIterator<Item = F>,
+    right: impl IntoIterator<Item = F>,
+) -> F
+where
+    F: Field,
+{
+    left.into_iter().zip(right).map(|(l, r)| l * r).sum::<F>()
+}
+
+fn fill_random<F: Field>(mut rng: impl RngCore, out: &mut [F]) {
+    out.iter_mut().for_each(|v| *v = F::random(&mut rng));
 }

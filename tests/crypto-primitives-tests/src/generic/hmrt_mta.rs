@@ -81,19 +81,16 @@ const K_SOME: usize = 10;
 const K_MANY: usize = 255;
 
 #[test]
-#[ignore]
 fn basic_k_none() {
     basic_impl::<Scalar, Point, K_NONE>();
 }
 
 #[test]
-#[ignore]
 fn basic_k_some() {
     basic_impl::<Scalar, Point, K_SOME>();
 }
 
 #[test]
-#[ignore]
 fn basic_k_many() {
     basic_impl::<Scalar, Point, K_MANY>();
 }
