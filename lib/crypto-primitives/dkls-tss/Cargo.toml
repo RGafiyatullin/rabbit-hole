@@ -16,6 +16,10 @@ ff = {workspace = true}
 rand = {workspace = true}
 thiserror = {workspace = true, optional = true}
 
+hmrt-mta = {workspace = true}
+shamir-sss = {workspace = true}
+utils = {workspace = true}
+
 
 [dev-dependencies]
 k256 = {workspace = true}
