@@ -68,7 +68,7 @@ where
         hex::decode_to_slice(s, repr.as_mut()).map_err(|_| ())?;
         let point = G::from_bytes(&repr);
 
-        if point.is_some().unwrap_u8() == 1 {
+        if point.is_some().into() {
             Ok(Self(point.unwrap()))
         } else {
             Err(())
@@ -97,7 +97,7 @@ impl<'de, G: GroupEncoding> Deserialize<'de> for Point<G> {
         hex::decode_to_slice(hex, repr.as_mut()).map_err(<D::Error as DeError>::custom)?;
         let point = G::from_bytes(&repr);
 
-        if point.is_some().unwrap_u8() == 1 {
+        if point.is_some().into() {
             Ok(Self(point.unwrap()))
         } else {
             Err(<D::Error as DeError>::custom("invalid repr"))

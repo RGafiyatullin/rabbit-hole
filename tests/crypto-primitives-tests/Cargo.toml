@@ -22,3 +22,5 @@ shamir-sss = {workspace = true}
 schnorr-proof = {workspace = true}
 simplest-ot = {workspace = true}
 utils = {workspace = true}
+
+curve-debug = {workspace = true}

@@ -1,5 +1,6 @@
 #![no_std]
 
+mod dkls_tss;
 
 #[cfg(test)]
 mod demo;
