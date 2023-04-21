@@ -152,6 +152,6 @@ impl<F: PrimeField> AffineCoordinates for G<F> {
     }
 
     fn y_is_odd(&self) -> subtle::Choice {
-        unimplemented!()
+        F::from_repr(self.x()).unwrap().is_odd()
     }
 }
