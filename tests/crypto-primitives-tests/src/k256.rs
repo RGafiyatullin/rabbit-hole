@@ -21,3 +21,6 @@ mod simplest_ot;
 
 #[path = "generic/hmrt_mta.rs"]
 mod hmrt_mta;
+
+#[path = "generic/dkls.rs"]
+mod dkls;
