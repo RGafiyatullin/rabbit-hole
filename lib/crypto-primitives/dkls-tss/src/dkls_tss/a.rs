@@ -1,6 +1,7 @@
 use digest::Digest;
-use elliptic_curve::PrimeField;
-use group::{Group, GroupEncoding};
+use elliptic_curve::point::AffineCoordinates;
+use ff::PrimeField;
+use group::{Curve, Group, GroupEncoding};
 use rand::RngCore;
 
 use crate::dkls_tss::THREE;
@@ -28,17 +29,16 @@ pub fn presign_choose<F, G, H, const L: usize>(
     G: Group<Scalar = F> + GroupEncoding,
     H: Digest,
 {
-    let g = G::generator();
-
     *phi = F::random(&mut rng);
 
     let k_a_seed = F::random(&mut rng);
     *r_seed = *d_b * k_a_seed;
     let h = utils::bytes_to_scalar::<F>(H::digest(r_seed.to_bytes()).as_ref());
-    *k_a = h + k_a_seed;
-    *r = *r_seed + g * h;
 
-    assert_eq!(*r, *d_b * (h + k_a_seed));
+    *k_a = h + k_a_seed;
+    *r = *d_b * *k_a;
+
+    assert_eq!(*r, *r_seed + *d_b * h);
 
     for i in 0..THREE {
         let mta_pa = mta_pa[i].as_ref();
@@ -102,11 +102,33 @@ pub fn presign_finalize<F, G, H, const L: usize>(
     *t_2_a = additive_shares[1] + additive_shares[2];
 }
 
-pub fn sign<F, G, H>(k_a: &F, t_1_a: &F, t_2_a: &F, phi: &F, r: &G, m: &F) -> F
-where
+pub fn sign<F, G, H>(
+    public_key: &G,
+    k_a: &F,
+    t_1_a: &F,
+    t_2_a: &F,
+    phi: &F,
+    r: &G,
+    m: &F,
+    eta_phi: &mut F,
+    eta_sig_a: &mut F,
+) where
     F: PrimeField,
-    G: Group<Scalar = F> + GroupEncoding,
+    G: Group<Scalar = F> + GroupEncoding + Curve,
+    G::AffineRepr: AffineCoordinates<FieldRepr = F::Repr>,
     H: Digest,
 {
-    unimplemented!()
+    let g = G::generator();
+
+    let r_x = F::from_repr(r.to_affine().x()).unwrap();
+    let sig_a = *m * t_1_a + r_x * t_2_a;
+
+    let gamma_1 = g + g * k_a * phi - *r * t_1_a;
+    let gamma_2 = *public_key * t_1_a - g * t_2_a;
+
+    let h_1 = utils::bytes_to_scalar::<F>(H::digest(gamma_1.to_bytes()).as_ref());
+    let h_2 = utils::bytes_to_scalar::<F>(H::digest(gamma_2.to_bytes()).as_ref());
+
+    *eta_phi = h_1 + phi;
+    *eta_sig_a = h_2 + sig_a;
 }

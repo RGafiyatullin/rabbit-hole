@@ -1,6 +1,7 @@
 use digest::Digest;
-use elliptic_curve::PrimeField;
-use group::{Group, GroupEncoding};
+use elliptic_curve::point::AffineCoordinates;
+use ff::PrimeField;
+use group::{Curve, Group, GroupEncoding};
 use rand::RngCore;
 
 use crate::dkls_tss::THREE;
@@ -86,11 +87,36 @@ pub fn presign_reply<F, G, H, const L: usize>(
     *t_2_b = additive_shares[1] + additive_shares[2];
 }
 
-pub fn sign<F, G, H>(eta_phi: &F, eta_sig: &F, t_1_b: &F, t_2_b: &F, r: &G, m: &F) -> F
+pub fn sign<F, G, H>(
+    public_key: &G,
+    eta_phi: &F,
+    eta_sig_a: &F,
+    k_b: &F,
+    t_1_b: &F,
+    t_2_b: &F,
+    r: &G,
+    m: &F,
+) -> F
 where
     F: PrimeField,
-    G: Group<Scalar = F> + GroupEncoding,
+    G: Group<Scalar = F> + GroupEncoding + Curve,
+    G::AffineRepr: AffineCoordinates<FieldRepr = F::Repr>,
     H: Digest,
 {
-    unimplemented!()
+    let g = G::generator();
+    let r_x = F::from_repr(r.to_affine().x()).unwrap();
+
+    let gamma_1 = *r * t_1_b;
+    let h_1 = utils::bytes_to_scalar::<F>(H::digest(gamma_1.to_bytes()).as_ref());
+    let phi = *eta_phi - h_1;
+
+    let k_b_inv = k_b.invert().unwrap();
+    let theta = *t_1_b - phi * k_b_inv;
+    let gamma_2 = g * t_2_b - *public_key * theta;
+    let h_2 = utils::bytes_to_scalar::<F>(H::digest(gamma_2.to_bytes()).as_ref());
+
+    let sig_a = *eta_sig_a - h_2;
+    let sig_b = *m * theta + r_x * t_2_b;
+
+    sig_a + sig_b
 }

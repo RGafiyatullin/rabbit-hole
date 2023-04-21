@@ -7,5 +7,8 @@ pub use dkls_tss::{a, b};
 mod demo;
 
 #[cfg(test)]
+mod tests;
+
+#[cfg(test)]
 #[macro_use]
 extern crate std;
