@@ -112,13 +112,6 @@ where
     assert_eq!(r_known, alice_r);
     let r_x_known = F::from_repr(r_known.to_affine().x()).unwrap();
 
-    // Alice
-    // eprintln!("g: {:?}", g);
-    // eprintln!("alice-phi:       {:?}", alice_phi);
-    // eprintln!("alice-k-a:       {:?}", alice_k_a);
-    // eprintln!("alice-r:         {:?}", alice_r);
-    // eprintln!("alice-t-1a-a:    {:?}", alice_t_1_a);
-
     let alice_gamma_1 = g + g * alice_k_a * alice_phi - alice_r * alice_t_1_a;
     // eprintln!("alice-gamma-1:   {:?}", alice_gamma_1);
 
@@ -149,11 +142,6 @@ where
 
     let sig_composed = bob_sig_b + bob_sig_a;
 
-    let sig_expected =
-        (m + (alice_t_0_a + bob_t_0_b) * r_x_known) * (alice_k_a * bob_k_b).invert().unwrap();
-    eprintln!("sig_composed: {:?}", sig_composed);
-    eprintln!("sig_expected: {:?}", sig_expected);
-
     fn verify<F, G>(sig: F, pk: G, r_x_known: F, m: F) -> bool
     where
         F: PrimeField,
@@ -167,10 +155,13 @@ where
         r_x_derived == r_x_known
     }
 
-    assert_eq!(sig_expected, sig_composed);
-
-    assert!(verify(sig_expected, pk, r_x_known, m));
     assert!(verify(sig_composed, pk, r_x_known, m));
+
+    let sig_expected =
+        (m + (alice_t_0_a + bob_t_0_b) * r_x_known) * (alice_k_a * bob_k_b).invert().unwrap();
+    assert!(verify(sig_expected, pk, r_x_known, m));
+
+    assert_eq!(sig_expected, sig_composed);
 }
 
 fn mta<F: PrimeField>(rng: impl RngCore, alpha: F, beta: F) -> (F, F) {
