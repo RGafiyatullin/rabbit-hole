@@ -4,7 +4,7 @@ use ff::PrimeField;
 use group::{Curve, Group, GroupEncoding};
 use rand::RngCore;
 
-fn playground<F, G, H>(sk_a: F, sk_b: F, m: F)
+fn demo_1<F, G, H>(sk_a: F, sk_b: F, m: F)
 where
     F: PrimeField,
     G: Group<Scalar = F> + GroupEncoding + Curve,
@@ -56,7 +56,7 @@ where
     assert_eq!(r_x_expected, r_x);
 }
 
-fn demo<F, G, H>(alice_t_0_a: F, bob_t_0_b: F, m: F)
+fn demo_2<F, G, H>(alice_t_0_a: F, bob_t_0_b: F, m: F)
 where
     F: PrimeField,
     G: Group<Scalar = F> + GroupEncoding + Curve,
@@ -69,15 +69,15 @@ where
     let pk = g * (alice_t_0_a + bob_t_0_b);
 
     // Bob chooses his secret key `k_b`
-    let bob_k_b = F::random(&mut rng); // F::from(11);
+    let bob_k_b = F::random(&mut rng);
     let bob_d_b = g * bob_k_b;
 
     // `d_b` is sent to Alice
     let alice_d_b = bob_d_b;
 
     // Alice chooses it's instance key `k_a` and computes `R`
-    let alice_phi = F::random(&mut rng); //F::from(13);
-    let alice_k_a_pr = F::random(&mut rng); // F::from(17);
+    let alice_phi = F::random(&mut rng);
+    let alice_k_a_pr = F::random(&mut rng);
     let alice_r_a_pr = alice_d_b * alice_k_a_pr;
 
     let alice_h = utils::bytes_to_scalar::<F>(H::digest(alice_r_a_pr.to_bytes()).as_ref());
@@ -89,7 +89,7 @@ where
     let (alice_t_1_a, bob_t_1_b) =
         mta(&mut rng, alice_phi + alice_k_a.invert().unwrap(), bob_k_b.invert().unwrap());
     let (alice_t_2a_a, bob_t_2a_b) =
-        mta(&mut rng, bob_k_b.invert().unwrap(), alice_t_0_a * alice_k_a.invert().unwrap());
+        mta(&mut rng, alice_t_0_a * alice_k_a.invert().unwrap(), bob_k_b.invert().unwrap());
     let (alice_t_2b_a, bob_t_2b_b) =
         mta(&mut rng, alice_k_a.invert().unwrap(), bob_t_0_b * bob_k_b.invert().unwrap());
 
@@ -175,37 +175,37 @@ fn mta<F: PrimeField>(rng: impl RngCore, alpha: F, beta: F) -> (F, F) {
 }
 
 #[test]
-fn playground_secp256k1() {
+fn demo_1_secp256k1() {
     let m = k256::Scalar::from(7u64);
     let sk_a = k256::Scalar::from(3u64);
     let sk_b = k256::Scalar::from(5u64);
 
-    playground::<k256::Scalar, k256::ProjectivePoint, sha3::Sha3_256>(sk_a, sk_b, m);
+    demo_1::<k256::Scalar, k256::ProjectivePoint, sha3::Sha3_256>(sk_a, sk_b, m);
 }
 
 #[test]
-fn demo_secp256k1() {
+fn demo_2_secp256k1() {
     let m = k256::Scalar::from(7u64);
     let sk_a = k256::Scalar::from(3u64);
     let sk_b = k256::Scalar::from(5u64);
 
-    demo::<k256::Scalar, k256::ProjectivePoint, sha3::Sha3_256>(sk_a, sk_b, m);
+    demo_2::<k256::Scalar, k256::ProjectivePoint, sha3::Sha3_256>(sk_a, sk_b, m);
 }
 
 #[test]
-fn playground_curve_debug() {
+fn demo_1_curve_debug() {
     let m = curve_debug::FU32::from(7u64);
     let sk_a = curve_debug::FU32::from(3u64);
     let sk_b = curve_debug::FU32::from(5u64);
 
-    playground::<curve_debug::FU32, curve_debug::GU32, sha3::Sha3_256>(sk_a, sk_b, m);
+    demo_1::<curve_debug::FU32, curve_debug::GU32, sha3::Sha3_256>(sk_a, sk_b, m);
 }
 
 #[test]
-fn demo_curve_debug() {
+fn demo_2_curve_debug() {
     let m = curve_debug::FU32::from(7u64);
     let sk_a = curve_debug::FU32::from(3u64);
     let sk_b = curve_debug::FU32::from(5u64);
 
-    demo::<curve_debug::FU32, curve_debug::GU32, sha3::Sha3_256>(sk_a, sk_b, m);
+    demo_2::<curve_debug::FU32, curve_debug::GU32, sha3::Sha3_256>(sk_a, sk_b, m);
 }

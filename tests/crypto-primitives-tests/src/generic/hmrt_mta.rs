@@ -4,27 +4,25 @@ use group::{Group, GroupEncoding};
 
 use super::{Point, Scalar};
 
-fn basic_impl<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, const K: usize>() {
+fn basic_impl<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, const L: usize>() {
     let mut rng = rand::rngs::OsRng;
-
-    let ell = F::NUM_BITS as usize + K;
 
     let mta_m1 = F::random(&mut rng);
     let mta_m2 = F::random(&mut rng);
 
-    let mut delta = vec![F::ZERO; ell];
-    let mut ot_a = vec![F::ZERO; ell];
-    let mut ot_pa = vec![G::identity(); ell];
+    let mut delta = [F::ZERO; L];
+    let mut ot_a = [F::ZERO; L];
+    let mut ot_pa = [G::identity(); L];
 
-    hmrt_mta::sender_init::<F, G, K>(&mut rng, delta.as_mut(), ot_a.as_mut(), ot_pa.as_mut());
+    hmrt_mta::sender_init::<F, G, L>(&mut rng, delta.as_mut(), ot_a.as_mut(), ot_pa.as_mut());
 
-    let mut shared = vec![F::ZERO; ell];
+    let mut shared = [F::ZERO; L];
 
-    let mut ot_pb = vec![G::identity(); ell];
-    let mut ot_rkey = vec![G::identity(); ell];
-    let mut t = vec![F::ZERO; ell];
+    let mut ot_pb = [G::identity(); L];
+    let mut ot_rkey = [G::identity(); L];
+    let mut t = [F::ZERO; L];
 
-    hmrt_mta::receiver_ot_choose::<F, G, K>(
+    hmrt_mta::receiver_ot_choose::<F, G, L>(
         &mut rng,
         &mta_m2,
         ot_pa.as_ref(),
@@ -34,8 +32,8 @@ fn basic_impl<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, const K: usiz
         shared.as_mut(),
     );
 
-    let mut encrypted = vec![[F::ZERO, F::ZERO]; ell];
-    hmrt_mta::sender_ot_reply::<F, G, _, K>(
+    let mut encrypted = [[F::ZERO, F::ZERO]; L];
+    hmrt_mta::sender_ot_reply::<F, G, _, L>(
         &mta_m1,
         delta.as_ref(),
         ot_a.as_ref(),
@@ -44,9 +42,9 @@ fn basic_impl<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, const K: usiz
         encrypt::<F, G>,
     );
 
-    let mta_a1 = hmrt_mta::sender_additive_share::<F, K>(shared.as_ref(), delta.as_ref());
+    let mta_a1 = hmrt_mta::sender_additive_share::<F, L>(shared.as_ref(), delta.as_ref());
 
-    let mta_a2 = hmrt_mta::receiver_additive_share::<F, G, _, K>(
+    let mta_a2 = hmrt_mta::receiver_additive_share::<F, G, _, L>(
         shared.as_ref(),
         encrypted.as_ref(),
         t.as_ref(),
@@ -64,7 +62,7 @@ where
     F: PrimeField,
     G: GroupEncoding,
 {
-    let k: F = utils::bytes_to_scalar(H::new().chain_update(key.to_bytes()).finalize().as_ref());
+    let k: F = utils::bytes_to_scalar(H::digest(key.to_bytes()).as_ref());
     *n + k
 }
 fn decrypt<F, G>(key: &G, n: &F) -> F
@@ -72,27 +70,13 @@ where
     F: PrimeField,
     G: GroupEncoding,
 {
-    let k: F = utils::bytes_to_scalar(H::new().chain_update(key.to_bytes()).finalize().as_ref());
+    let k: F = utils::bytes_to_scalar(H::digest(key.to_bytes()).as_ref());
     *n - k
 }
 
-const K_NONE: usize = 0;
-const K_SOME: usize = 10;
-const K_MANY: usize = 255;
-
 #[test]
-fn basic_k_none() {
-    basic_impl::<Scalar, Point, K_NONE>();
-}
-
-#[test]
-fn basic_k_some() {
-    basic_impl::<Scalar, Point, K_SOME>();
-}
-
-#[test]
-fn basic_k_many() {
-    basic_impl::<Scalar, Point, K_MANY>();
+fn basic() {
+    basic_impl::<Scalar, Point, 256>();
 }
 
 fn encrypt_decrypt_impl<F, G>()
