@@ -1,28 +1,29 @@
 [package]
-name = "crypto-primitives-tests"
+name = "rabbit-hole-crypto-primitives-dkls-tss"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+std-error = ["dep:thiserror"]
+
 [dependencies]
-curve25519 = {workspace = true}
 digest = {workspace = true}
 elliptic-curve = {workspace = true}
-ff = {workspace = true}
 group = {workspace = true}
-k256 = {workspace = true}
+ff = {workspace = true}
 rand = {workspace = true}
-sha3 = {workspace = true}
+thiserror = {workspace = true, optional = true}
 
-csi-rashi-dkg = {workspace = true}
-dkls-tss = {workspace = true}
-feldman-vsss = {workspace = true}
-frost-tss = {workspace = true}
 hmrt-mta = {workspace = true}
 shamir-sss = {workspace = true}
-schnorr-proof = {workspace = true}
-simplest-ot = {workspace = true}
 utils = {workspace = true}
+
+[dev-dependencies]
+k256 = {workspace = true}
+curve25519 = {workspace = true}
+sha3 = {workspace = true}
 
 curve-debug = {workspace = true}

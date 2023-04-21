@@ -70,7 +70,7 @@ where
         hex::decode_to_slice(s, &mut repr.as_mut()[0..(s.len() / 2)]).map_err(|_| ())?;
         let scalar = F::from_repr(repr);
 
-        if scalar.is_some().unwrap_u8() == 1 {
+        if scalar.is_some().into() {
             Ok(Self(scalar.unwrap()))
         } else {
             Err(())

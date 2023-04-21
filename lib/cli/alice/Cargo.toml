@@ -29,6 +29,7 @@ sha2 = {workspace = true}
 sha3 = {workspace = true}
 
 csi-rashi-dkg = {workspace = true, features = ["std-error"]}
+dkls-tss = {workspace = true, features = []}
 frost-tss = {workspace = true, features = ["std-error"]}
 utils = {workspace = true}
 

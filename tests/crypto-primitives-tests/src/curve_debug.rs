@@ -1,5 +1,5 @@
-type Scalar = k256::Scalar;
-type Point = k256::ProjectivePoint;
+type Scalar = curve_debug::FU32;
+type Point = curve_debug::GU32;
 
 #[path = "generic/schnorr_proof.rs"]
 mod schnorr_proof;
