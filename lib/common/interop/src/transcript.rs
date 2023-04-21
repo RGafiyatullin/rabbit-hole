@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::hash_function::HashFunction;
+use crate::hash_function_select::HashFunctionSelect;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Transcript {
-    pub hash_function: HashFunction,
+    pub hash_function: HashFunctionSelect,
     pub input: Vec<Input>,
 }
 

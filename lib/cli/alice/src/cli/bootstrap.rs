@@ -5,8 +5,8 @@ use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use common_interop::curve::Curve;
-use common_interop::hash_function::HashFunction;
+use common_interop::curve_select::CurveSelect;
+use common_interop::hash_function_select::HashFunctionSelect;
 
 use super::{Cli, CliRun};
 
@@ -23,10 +23,10 @@ impl Cli<(), (), ()> {
         args: impl IntoIterator<Item = impl Into<OsString> + Clone>,
     ) -> Box<dyn CliRun<()>> {
         match self.curve {
-            Curve::Secp256k1 => self.run_1::<k256::Scalar, k256::ProjectivePoint>(args),
-            Curve::Ed25519 =>
+            CurveSelect::Secp256k1 => self.run_1::<k256::Scalar, k256::ProjectivePoint>(args),
+            CurveSelect::Ed25519 =>
                 self.run_1::<curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint>(args),
-            Curve::Ristretto25519 => self
+            CurveSelect::Ristretto25519 => self
                 .run_1::<curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint>(args),
         }
     }
@@ -39,7 +39,8 @@ impl Cli<(), (), ()> {
         G: Group<Scalar = F> + GroupEncoding,
     {
         match self.hash_function {
-            HashFunction::Sha3_256 => self.run_2::<F, G, sha3::Sha3_256>(args),
+            HashFunctionSelect::Sha2_256 => self.run_2::<F, G, sha2::Sha256>(args),
+            HashFunctionSelect::Sha3_256 => self.run_2::<F, G, sha3::Sha3_256>(args),
         }
     }
     fn run_2<F, G, H>(

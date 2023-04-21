@@ -1,5 +1,5 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum Curve {
+pub enum CurveSelect {
     Secp256k1,
     Ed25519,
     Ristretto25519,
@@ -11,7 +11,7 @@ const SECP256K1: &str = "secp256k1";
 const ED25519: &str = "ed25519";
 const RISTRETTO25519: &str = "ristretto25519";
 
-impl Curve {
+impl CurveSelect {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Secp256k1 => SECP256K1,
@@ -21,13 +21,13 @@ impl Curve {
     }
 }
 
-impl fmt::Display for Curve {
+impl fmt::Display for CurveSelect {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.as_str().fmt(f)
     }
 }
 
-impl str::FromStr for Curve {
+impl str::FromStr for CurveSelect {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let out = match s {

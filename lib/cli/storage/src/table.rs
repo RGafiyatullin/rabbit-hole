@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use common_interop::curve::Curve;
+use common_interop::curve_select::CurveSelect;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 
@@ -15,7 +15,7 @@ pub struct Table<N, T = N> {
 }
 
 impl<N, T> Table<N, T> {
-    pub fn open(storage: impl Into<Storage>, curve: Curve) -> Result<Self, AnyError> {
+    pub fn open(storage: impl Into<Storage>, curve: CurveSelect) -> Result<Self, AnyError> {
         let storage = storage.into();
 
         let tree_name = tree_name::<N>(curve);
@@ -87,6 +87,6 @@ impl<N, T> Table<N, T> {
     }
 }
 
-fn tree_name<N>(curve: Curve) -> String {
+fn tree_name<N>(curve: CurveSelect) -> String {
     format!("{}/{}", curve, std::any::type_name::<N>())
 }

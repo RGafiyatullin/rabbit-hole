@@ -7,8 +7,8 @@ use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use structopt::StructOpt;
 
-use common_interop::curve::Curve;
-use common_interop::hash_function::HashFunction;
+use common_interop::curve_select::CurveSelect;
+use common_interop::hash_function_select::HashFunctionSelect;
 
 use crate::AnyError;
 
@@ -26,10 +26,10 @@ pub trait CliRun<Prev> {
 #[derive(Debug, StructOpt)]
 pub struct Cli<F, G, H> {
     #[structopt(long, short, env = "ALICE_CURVE", default_value = "secp256k1")]
-    pub curve: Curve,
+    pub curve: CurveSelect,
 
     #[structopt(long, short, env = "ALICE_HASH_FUNCTION", default_value = "sha3-256")]
-    pub hash_function: HashFunction,
+    pub hash_function: HashFunctionSelect,
 
     #[structopt(long, short, env = "ALICE_STORAGE_PATH")]
     pub storage_path: Option<PathBuf>,

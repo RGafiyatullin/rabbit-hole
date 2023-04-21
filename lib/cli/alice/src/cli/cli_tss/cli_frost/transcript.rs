@@ -1,5 +1,5 @@
 use cli_storage::AnyError;
-use common_interop::hash_function::HashFunction;
+use common_interop::hash_function_select::HashFunctionSelect;
 use common_interop::transcript::{Input, KnownPoint, Transcript};
 use digest::Digest;
 use ff::PrimeField;
@@ -11,7 +11,8 @@ where
     G: Group<Scalar = F> + GroupEncoding,
 {
     match t.hash_function {
-        HashFunction::Sha3_256 => produce_challenge_1::<F, G, sha3::Sha3_256>(t, y, r),
+        HashFunctionSelect::Sha3_256 => produce_challenge_1::<F, G, sha3::Sha3_256>(t, y, r),
+        HashFunctionSelect::Sha2_256 => produce_challenge_1::<F, G, sha2::Sha256>(t, y, r),
     }
 }
 
