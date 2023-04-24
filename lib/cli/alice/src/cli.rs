@@ -2,6 +2,7 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 
 use cli_storage::Storage;
+use rand::RngCore;
 use structopt::StructOpt;
 
 use crate::caps::IO;
@@ -52,16 +53,17 @@ impl Cli {
     }
 }
 
-impl<I> CliRun<I> for Cli
+impl<R, I> CliRun<(R, I)> for Cli
 where
+    R: RngCore,
     I: IO,
 {
-    fn run(&self, io: I) -> Result<RetCode, AnyError> {
+    fn run(&self, (rng, io): (R, I)) -> Result<RetCode, AnyError> {
         let storage = Storage::open(self.storage_path()?.to_str().ok_or("invalid path")?)?;
 
         match &self.cmd {
             Sub::Keys(sub) => sub.run((io, storage)),
-            Sub::Dkg(sub) => sub.run((io, storage)),
+            Sub::Dkg(sub) => sub.run((rng, io, storage)),
         }
     }
 }

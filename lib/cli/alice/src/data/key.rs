@@ -1,4 +1,5 @@
 use common_interop::curve_select::CurveSelect;
+use common_interop::types::{Point, Scalar};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -11,13 +12,14 @@ pub enum Key {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FullKey {
     pub curve: CurveSelect,
-    pub value: String,
+    pub value: Scalar,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct S4Share {
     pub curve: CurveSelect,
     pub threshold: usize,
-    pub x: String,
-    pub y: String,
+    pub public_key: Point,
+    pub x: Scalar,
+    pub y: Scalar,
 }

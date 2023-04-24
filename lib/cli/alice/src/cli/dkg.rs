@@ -1,3 +1,4 @@
+use rand::RngCore;
 use structopt::StructOpt;
 
 use cli_storage::Storage;
@@ -19,10 +20,10 @@ enum Cmd {
     CsiRashi(csi_rashi::CmdCsiRashi),
 }
 
-impl<I: IO> CliRun<(I, Storage)> for CmdDkg {
-    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, AnyError> {
+impl<R: RngCore, I: IO> CliRun<(R, I, Storage)> for CmdDkg {
+    fn run(&self, (rng, io, storage): (R, I, Storage)) -> Result<RetCode, AnyError> {
         match &self.cmd {
-            Cmd::CsiRashi(sub) => sub.run((io, storage)),
+            Cmd::CsiRashi(sub) => sub.run((rng, io, storage)),
         }
     }
 }

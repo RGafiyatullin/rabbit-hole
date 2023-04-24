@@ -7,10 +7,10 @@ mod impl_scalar;
 
 mod impl_kv;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Scalar(CurveSelect, String);
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Point(CurveSelect, String);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
