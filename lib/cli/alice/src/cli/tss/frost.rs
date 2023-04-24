@@ -346,10 +346,13 @@ mod transcript {
         F: PrimeField,
         G: Group<Scalar = F> + GroupEncoding,
     {
-        match t.hash_function {
-            HashFunctionSelect::Sha3_256 => produce_challenge_1::<F, G, sha3::Sha3_256>(t, y, r),
-            HashFunctionSelect::Sha2_256 => produce_challenge_1::<F, G, sha2::Sha256>(t, y, r),
-        }
+        specialize_call!(produce_challenge_1, (t,y,r), t.hash_function,
+            [
+                (HashFunctionSelect::Sha3_256 => F, G, sha3::Sha3_256),
+                (HashFunctionSelect::Sha2_256 => F, G, sha2::Sha256),
+            ],
+        )
+        .ok_or(format!("unsupported hash-function: {}", t.hash_function))?
     }
 
     fn produce_challenge_1<F, G, H>(t: &Transcript, y: &G, r: &G) -> Result<F, AnyError>
