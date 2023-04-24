@@ -6,7 +6,7 @@ impl<const N: u64> F<N> {
         Self(value % N)
     }
     pub const fn from_i64(value: i64) -> Self {
-        let value = if value.is_negative() { N - value.abs() as u64 } else { value as u64 };
+        let value = if value.is_negative() { N - value.unsigned_abs() } else { value as u64 };
         Self::from_u64(value)
     }
 

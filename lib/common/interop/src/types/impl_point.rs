@@ -1,116 +1,103 @@
 use core::{fmt, str};
-use std::hash::Hash;
 
 use group::GroupEncoding;
 use serde::de::Error as DeError;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
+
+use crate::curve_select::CurveSelect;
+use crate::AnyError;
 
 use super::Point;
 
-impl<G> AsRef<G> for Point<G> {
-    fn as_ref(&self) -> &G {
-        &self.0
-    }
-}
-
-impl<G> AsMut<G> for Point<G> {
-    fn as_mut(&mut self) -> &mut G {
-        &mut self.0
-    }
-}
-
-impl<G> From<G> for Point<G> {
-    fn from(value: G) -> Self {
-        Self(value)
-    }
-}
-
-impl<G> Point<G> {
-    pub fn into_inner(self) -> G {
-        self.0
-    }
-}
-
-impl<G> Hash for Point<G>
-where
-    G: GroupEncoding,
-{
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.0.to_bytes().as_ref().hash(state)
-    }
-}
-
-impl<G> fmt::Display for Point<G>
-where
-    G: GroupEncoding,
-{
+impl fmt::Display for Point {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut buf = [0u8; SERDE_BUF_SIZE];
-
-        let repr = self.0.to_bytes();
-        let repr = repr.as_ref();
-        let buf = &mut buf[0..(repr.len() * 2)];
-
-        hex::encode_to_slice(repr, buf).map_err(|_| fmt::Error)?;
-        let s = core::str::from_utf8(buf).map_err(|_| fmt::Error)?;
-
-        write!(f, "{}", s)
+        write!(f, "{}:{}", self.0, self.1)
     }
 }
 
-impl<G> str::FromStr for Point<G>
-where
-    G: GroupEncoding,
-{
-    type Err = ();
+impl str::FromStr for Point {
+    type Err = &'static str;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut repr: G::Repr = Default::default();
-        hex::decode_to_slice(s, repr.as_mut()).map_err(|_| ())?;
-        let point = G::from_bytes(&repr);
-
-        if point.is_some().into() {
-            Ok(Self(point.unwrap()))
-        } else {
-            Err(())
-        }
+        let Some((curve_select, hex_value)) = s.split_once(':') else  {
+            return Err("should be <curve>:<hex>")
+        };
+        let curve_select = CurveSelect::from_str(curve_select).map_err(|_| "invalid curve")?;
+        Ok(Self(curve_select, hex_value.to_string()))
     }
 }
 
-const SERDE_BUF_SIZE: usize = 128;
-
-impl<G: GroupEncoding> Serialize for Point<G> {
+impl Serialize for Point {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: Serializer,
+        S: serde::Serializer,
     {
-        hex::encode(self.0.to_bytes().as_ref()).serialize(serializer)
+        self.to_string().serialize(serializer)
+    }
+}
+impl<'de> Deserialize<'de> for Point {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse::<Self>()
+            .map_err(<D::Error as DeError>::custom)
     }
 }
 
-impl<'de, G: GroupEncoding> Deserialize<'de> for Point<G> {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let hex: String = Deserialize::deserialize(deserializer)?;
-        let mut repr: G::Repr = Default::default();
-        hex::decode_to_slice(hex, repr.as_mut()).map_err(<D::Error as DeError>::custom)?;
-        let point = G::from_bytes(&repr);
-
-        if point.is_some().into() {
-            Ok(Self(point.unwrap()))
-        } else {
-            Err(<D::Error as DeError>::custom("invalid repr"))
+impl Point {
+    pub fn restore<G: GroupEncoding>(&self, curve: CurveSelect) -> Result<G, AnyError> {
+        if self.0 != curve {
+            return Err("invalid curve".into())
         }
+
+        let mut repr: G::Repr = Default::default();
+        hex::decode_to_slice(self.1.as_str(), repr.as_mut())?;
+        let out = G::from_bytes(&repr).unwrap();
+        Ok(out)
+    }
+    pub fn from_value<G: GroupEncoding>(curve: CurveSelect, value: G) -> Self {
+        let repr = value.to_bytes();
+        let hex = hex::encode(repr.as_ref());
+        Self(curve, hex)
+    }
+
+    pub fn from_hex(curve: CurveSelect, hex: impl Into<String>) -> Self {
+        Self(curve, hex.into())
     }
 }
 
 #[test]
-fn point_serde() {
-    let p_in: Point<_> = k256::ProjectivePoint::GENERATOR.into();
-    let json = serde_json::to_string_pretty(&p_in).expect("ser");
-    eprintln!("{}", json);
-    let p_out: Point<k256::ProjectivePoint> = serde_json::from_str(&json).expect("de");
+fn test_serde_value() {
+    let v1 = Point::from_value(
+        CurveSelect::Secp256k1,
+        k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64),
+    );
+    let s = serde_yaml::to_string(&v1).expect("ser");
+    eprintln!("{}", s);
+    let v2: Point = serde_yaml::from_str(&s).expect("de");
+    assert_eq!(v1, v2);
+}
 
-    assert_eq!(p_in, p_out);
+#[test]
+fn test_serde_key() {
+    use std::collections::HashMap;
+
+    let v1: HashMap<_, _> = [(
+        Point::from_value(
+            CurveSelect::Secp256k1,
+            k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64),
+        ),
+        Point::from_value(
+            CurveSelect::Secp256k1,
+            k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64),
+        ),
+    )]
+    .into_iter()
+    .collect();
+
+    let s = serde_yaml::to_string(&v1).expect("ser");
+    eprintln!("{}", s);
+    let v2: HashMap<Point, Point> = serde_yaml::from_str(&s).expect("de");
+    assert_eq!(v1, v2);
 }

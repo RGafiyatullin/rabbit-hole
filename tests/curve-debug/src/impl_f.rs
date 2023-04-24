@@ -47,6 +47,8 @@ impl<const N: u64> Sub<Self> for F<N> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
+        #![allow(clippy::suspicious_arithmetic_impl)]
+
         self + rhs.neg()
     }
 }
@@ -113,7 +115,7 @@ impl<const N: u64> Sum<Self> for F<N> {
 }
 impl<'a, const N: u64> Sum<&'a Self> for F<N> {
     fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        iter.map(|v| *v).sum()
+        iter.copied().sum()
     }
 }
 
@@ -124,7 +126,7 @@ impl<const N: u64> Product<Self> for F<N> {
 }
 impl<'a, const N: u64> Product<&'a Self> for F<N> {
     fn product<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        iter.map(|v| *v).product()
+        iter.copied().product()
     }
 }
 

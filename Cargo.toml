@@ -47,6 +47,7 @@ utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-pri
 
 common-interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
 common-logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}
+common-macros = {path = "lib/common/macros", package = "rabbit-hole-common-macros"}
 
 cli-alice = {path = "lib/cli/alice", package = "rabbit-hole-cli-alice"}
 cli-storage = {path = "lib/cli/storage", package = "rabbit-hole-cli-storage"}

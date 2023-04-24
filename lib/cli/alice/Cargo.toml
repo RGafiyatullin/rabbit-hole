@@ -35,5 +35,9 @@ utils = {workspace = true}
 
 common-logging = {workspace = true}
 common-interop = {workspace = true}
+common-macros = {workspace = true}
 
 cli-storage = {workspace = true}
+
+[dev-dependencies]
+tempfile = "^3"
