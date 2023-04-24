@@ -1,5 +1,3 @@
-use serde::{Deserialize, Serialize};
-
 use crate::curve_select::CurveSelect;
 
 mod impl_point;

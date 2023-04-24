@@ -56,16 +56,23 @@ impl Point {
         let out = G::from_bytes(&repr).unwrap();
         Ok(out)
     }
-    pub fn new<G: GroupEncoding>(curve: CurveSelect, value: G) -> Self {
+    pub fn from_value<G: GroupEncoding>(curve: CurveSelect, value: G) -> Self {
         let repr = value.to_bytes();
         let hex = hex::encode(repr.as_ref());
         Self(curve, hex)
+    }
+
+    pub fn from_hex(curve: CurveSelect, hex: impl Into<String>) -> Self {
+        Self(curve, hex.into())
     }
 }
 
 #[test]
 fn test_serde_value() {
-    let v1 = Point::new(CurveSelect::Secp256k1, k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64));
+    let v1 = Point::from_value(
+        CurveSelect::Secp256k1,
+        k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64),
+    );
     let s = serde_yaml::to_string(&v1).expect("ser");
     eprintln!("{}", s);
     let v2: Point = serde_yaml::from_str(&s).expect("de");
@@ -77,10 +84,18 @@ fn test_serde_key() {
     use std::collections::HashMap;
 
     let v1: HashMap<_, _> = [(
-        Point::new(CurveSelect::Secp256k1, k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64)),
-        Point::new(CurveSelect::Secp256k1, k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64))
-    )].into_iter().collect();
-    
+        Point::from_value(
+            CurveSelect::Secp256k1,
+            k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64),
+        ),
+        Point::from_value(
+            CurveSelect::Secp256k1,
+            k256::ProjectivePoint::GENERATOR * k256::Scalar::from(42u64),
+        ),
+    )]
+    .into_iter()
+    .collect();
+
     let s = serde_yaml::to_string(&v1).expect("ser");
     eprintln!("{}", s);
     let v2: HashMap<Point, Point> = serde_yaml::from_str(&s).expect("de");

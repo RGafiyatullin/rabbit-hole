@@ -15,18 +15,6 @@ pub trait CliRun<Prev> {
     fn run(&self, prev: Prev) -> Result<RetCode, AnyError>;
 }
 
-pub trait CliRunnable {
-    fn run(self) -> Result<RetCode, AnyError>;
-}
-impl<C, A> CliRunnable for (&C, A)
-where
-    C: CliRun<A>,
-{
-    fn run(self) -> Result<RetCode, AnyError> {
-        <C as CliRun<A>>::run(self.0, self.1)
-    }
-}
-
 #[derive(Debug, StructOpt)]
 pub struct Cli {
     #[structopt(long, short, env = "ALICE_STORAGE")]

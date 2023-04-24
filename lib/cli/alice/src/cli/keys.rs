@@ -21,6 +21,13 @@ enum Sub {
     List(CmdKeysList),
     Rm(CmdKeyRm),
     Add(CmdKeyAdd),
+    Get(CmdKeyGet),
+}
+
+#[derive(Debug, StructOpt)]
+pub struct CmdKeyGet {
+    #[structopt(name = "KEY-ID")]
+    pub key_id: String,
 }
 
 #[derive(Debug, StructOpt)]
@@ -47,6 +54,7 @@ impl<I: IO> CliRun<(I, Storage)> for CmdKeys {
             Sub::List(sub) => sub.run((io, storage)),
             Sub::Rm(sub) => sub.run((io, storage)),
             Sub::Add(sub) => sub.run((io, storage)),
+            Sub::Get(sub) => sub.run((io, storage)),
         }
     }
 }
@@ -70,6 +78,20 @@ impl<I: IO> CliRun<(I, Storage)> for CmdKeyRm {
 
         if table.remove(&self.key_id)?.is_some() {
             writeln!(io.stderr(), "Key removed: {:?}", self.key_id)?;
+            Ok(0)
+        } else {
+            writeln!(io.stderr(), "Key does not exist: {:?}", self.key_id)?;
+            Ok(1)
+        }
+    }
+}
+
+impl<I: IO> CliRun<(I, Storage)> for CmdKeyGet {
+    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
+        let table = keys_table(&storage)?;
+
+        if let Some(key) = table.get(&self.key_id)? {
+            serde_yaml::to_writer(io.stdout(), &key)?;
             Ok(0)
         } else {
             writeln!(io.stderr(), "Key does not exist: {:?}", self.key_id)?;

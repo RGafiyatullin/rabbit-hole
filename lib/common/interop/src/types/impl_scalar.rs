@@ -56,18 +56,20 @@ impl Scalar {
         let out = F::from_repr(repr).unwrap();
         Ok(out)
     }
-    pub fn new<F: PrimeField>(curve: CurveSelect, value: F) -> Self {
+    pub fn from_value<F: PrimeField>(curve: CurveSelect, value: F) -> Self {
         let repr = value.to_repr();
         let hex = hex::encode(repr.as_ref());
         Self(curve, hex)
     }
+
+    pub fn from_hex(curve: CurveSelect, hex: impl Into<String>) -> Self {
+        Self(curve, hex.into())
+    }
 }
-
-
 
 #[test]
 fn test_serde_value() {
-    let v1 = Scalar::new(CurveSelect::Secp256k1, k256::Scalar::from(42u64));
+    let v1 = Scalar::from_value(CurveSelect::Secp256k1, k256::Scalar::from(42u64));
     let s = serde_yaml::to_string(&v1).expect("ser");
     eprintln!("{}", s);
     let v2: Scalar = serde_yaml::from_str(&s).expect("de");
@@ -77,12 +79,14 @@ fn test_serde_value() {
 #[test]
 fn test_serde_key() {
     use std::collections::HashMap;
-    
+
     let v1: HashMap<_, _> = [(
-        Scalar::new(CurveSelect::Secp256k1, k256::Scalar::from(42u64)),
-        Scalar::new(CurveSelect::Secp256k1, k256::Scalar::from(42u64))
-    )].into_iter().collect();
-    
+        Scalar::from_value(CurveSelect::Secp256k1, k256::Scalar::from(42u64)),
+        Scalar::from_value(CurveSelect::Secp256k1, k256::Scalar::from(42u64)),
+    )]
+    .into_iter()
+    .collect();
+
     let s = serde_yaml::to_string(&v1).expect("ser");
     eprintln!("{}", s);
     let v2: HashMap<Scalar, Scalar> = serde_yaml::from_str(&s).expect("de");
