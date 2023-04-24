@@ -1,10 +1,13 @@
 use cli_storage::Table;
 use common_interop::curve_select::CurveSelect;
+use common_interop::hash_function_select::HashFunctionSelect;
+use common_interop::transcript::Transcript;
 use common_interop::types::{Point, Scalar};
+use digest::Digest;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use rand::RngCore;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 
 use cli_storage::Storage;
@@ -25,7 +28,7 @@ pub struct CmdFrost {
 #[derive(Debug, StructOpt)]
 enum Cmd {
     Prepare(CmdPrepare),
-    Sign,
+    Sign(CmdSign),
     Aggregate,
 }
 
@@ -39,6 +42,12 @@ struct Nonces {
 struct CmdPrepare {
     #[structopt(long, short)]
     count: usize,
+}
+
+#[derive(Debug, StructOpt)]
+struct CmdSign {
+    #[structopt(long, short)]
+    hash_function: HashFunctionSelect,
 }
 
 pub fn run(
@@ -70,7 +79,13 @@ fn run_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
 ) -> Result<RetCode, AnyError> {
     match &frost.cmd {
         Cmd::Prepare(sub) => run_prepare::<F, G>(frost, sub, s4_share, rng, io, storage),
-        Cmd::Sign => unimplemented!(),
+        Cmd::Sign(sub) => specialize_call!(
+            run_sign, (frost, s4_share, io, storage),
+            ((), (), sub.hash_function),
+            [(_ => F)],
+            [(_ => G)],
+            [(HashFunctionSelect::Sha2_256 => sha2::Sha256), (HashFunctionSelect::Sha3_256 => sha3::Sha3_256)]
+        ).ok_or("Unsupported hash-function")?,
         Cmd::Aggregate => unimplemented!(),
     }
 }
@@ -104,20 +119,99 @@ fn run_prepare<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
     for i in 0..prepare.count {
         let (d, e) = nonces[i].clone();
         let (pd, pe) = &commitments[i];
-        tab_nonces.insert(&nonce_key(&frost.key_id, pd, pe), &Nonces {
-            d, e
-        })?;
+        tab_nonces.insert(&nonce_key(&frost.key_id, pd, pe), &Nonces { d, e })?;
     }
 
     serde_yaml::to_writer(io.stdout(), &commitments)?;
-    
+
     Ok(0)
 }
 
-fn nonce_key(key_id: &str, pd: &Point, pe: &Point) -> String {
-    format!("{}[{}-{}]", key_id, pd, pe)
+fn run_sign<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
+    frost: &CmdFrost,
+    s4_share: &S4Share,
+    io: impl IO,
+    storage: Storage,
+) -> Result<RetCode, AnyError> {
+    let curve = s4_share.curve;
+
+    let tab_nonces = nonces_table(&storage)?;
+
+    #[derive(Deserialize)]
+    struct Input {
+        transcript: Transcript,
+        signers: Vec<(Scalar, Point, Point)>,
+    }
+    #[derive(Serialize)]
+    struct Output {
+        y: Point,
+        r: Point,
+        z: Scalar,
+    }
+
+    let input: Input = serde_yaml::from_reader(io.stdin())?;
+
+    if input.signers.len() != s4_share.threshold {
+        return Err(format!(
+            "Invalid threshold [expected: {}; commitments-count: {}]",
+            s4_share.threshold,
+            input.signers.len()
+        )
+        .into())
+    }
+
+    let participant_id = input.signers.iter().position(|(x, _, _)| x == &s4_share.x).ok_or(
+        format!("Proposed commitments do not contain this key-share's `x`: {}", s4_share.x),
+    )?;
+    let public_key = s4_share.public_key.restore::<G>(curve)?;
+
+    let (_, cd, ce) = &input.signers[participant_id];
+    let nonce_key = nonce_key(&frost.key_id, cd, ce);
+
+    let (shamir_xs, commitments): (Vec<_>, Vec<_>) = {
+        let tmp = input
+            .signers
+            .iter()
+            .map(|(x, cd, ce)| {
+                let x = x.restore::<F>(curve)?;
+                let cd = cd.restore::<G>(curve)?;
+                let ce = ce.restore::<G>(curve)?;
+                Ok((x, (cd, ce)))
+            })
+            .collect::<Result<Vec<_>, AnyError>>()?;
+        tmp.into_iter().unzip()
+    };
+    let Some(nonces) = tab_nonces.remove(&nonce_key)? else {
+        return Err(format!("Unknown commitment: {}-{}", cd, ce).into())
+    };
+
+    let shamir_y = s4_share.y.restore::<F>(curve)?;
+
+    let (y, r, z) = frost_tss::sign::<F, G, H>(
+        &public_key,
+        participant_id,
+        &shamir_y,
+        &shamir_xs,
+        &(nonces.d.restore::<F>(curve)?, nonces.e.restore::<F>(curve)?),
+        &commitments,
+        |y, r| transcript::produce_challenge(&input.transcript, y, r).expect("Invalid transcript"),
+    );
+
+    serde_yaml::to_writer(
+        io.stdout(),
+        &Output {
+            y: Point::from_value(curve, y),
+            r: Point::from_value(curve, r),
+            z: Scalar::from_value(curve, z),
+        },
+    )?;
+
+    Ok(0)
 }
 
+fn nonce_key(key_id: &str, cd: &Point, ce: &Point) -> String {
+    format!("{}[{}-{}]", key_id, cd, ce)
+}
 
 fn keys_table(storage: &Storage) -> Result<Table<Key>, AnyError> {
     Table::open(storage)
@@ -125,4 +219,44 @@ fn keys_table(storage: &Storage) -> Result<Table<Key>, AnyError> {
 
 fn nonces_table(storage: &Storage) -> Result<Table<Nonces>, AnyError> {
     Table::open(storage)
+}
+
+mod transcript {
+    use cli_storage::AnyError;
+    use common_interop::hash_function_select::HashFunctionSelect;
+    use common_interop::transcript::{Input, KnownPoint, Transcript};
+    use digest::Digest;
+    use ff::PrimeField;
+    use group::{Group, GroupEncoding};
+
+    pub fn produce_challenge<F, G>(t: &Transcript, y: &G, r: &G) -> Result<F, AnyError>
+    where
+        F: PrimeField,
+        G: Group<Scalar = F> + GroupEncoding,
+    {
+        match t.hash_function {
+            HashFunctionSelect::Sha3_256 => produce_challenge_1::<F, G, sha3::Sha3_256>(t, y, r),
+            HashFunctionSelect::Sha2_256 => produce_challenge_1::<F, G, sha2::Sha256>(t, y, r),
+        }
+    }
+
+    fn produce_challenge_1<F, G, H>(t: &Transcript, y: &G, r: &G) -> Result<F, AnyError>
+    where
+        F: PrimeField,
+        G: Group<Scalar = F> + GroupEncoding,
+        H: Digest,
+    {
+        let mut hasher = H::new();
+
+        for input in t.input.iter() {
+            match input {
+                Input::Hex(h) => hasher.update(hex::decode(h.as_str())?),
+                Input::Text(t) => hasher.update(t),
+                Input::Point(KnownPoint::Y) => hasher.update(y.to_bytes()),
+                Input::Point(KnownPoint::R) => hasher.update(r.to_bytes()),
+            }
+        }
+
+        Ok(utils::bytes_to_scalar(hasher.finalize().as_ref()))
+    }
 }
