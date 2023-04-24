@@ -1,6 +1,5 @@
 use std::io::Write;
 
-use common_interop::types::KV;
 use structopt::StructOpt;
 
 use cli_storage::{Storage, Table};
@@ -63,10 +62,13 @@ impl<I: IO> CliRun<(I, Storage)> for CmdKeysList {
     fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
         let table = keys_table(&storage)?;
 
+        let mut ids = vec![];
         for item in table.select(&self.key_id_prefix) {
-            let (id, key) = item?;
-            serde_yaml::to_writer(io.stdout(), &KV(&id, &key))?;
+            let (id, _key) = item?;
+            ids.push(id);
         }
+
+        serde_yaml::to_writer(io.stdout(), &ids)?;
 
         Ok(0)
     }
