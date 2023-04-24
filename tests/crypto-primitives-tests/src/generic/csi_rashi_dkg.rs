@@ -2,7 +2,7 @@ use ff::PrimeField;
 use group::Group;
 use rand::RngCore;
 
-use ::csi_rashi_dkg::{aggregate_deals, deal};
+use ::csi_rashi_dkg::{aggregate, deal};
 use ::shamir_sss::LagrangeCoefficientAt;
 
 use super::*;
@@ -36,7 +36,7 @@ where
         let shamir_ys = &shamir_ys[i][..];
 
         let mut complaints = [false; PARTIES];
-        aggregate_deals::<F, G>(&vss_commitments[..], shamir_x, shamir_ys, &mut complaints[..])
+        aggregate::<F, G>(&vss_commitments[..], shamir_x, shamir_ys, &mut complaints[..])
             .expect("aggregate")
     });
 

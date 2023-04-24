@@ -15,3 +15,12 @@ mod csi_rashi_dkg;
 
 #[path = "generic/frost_tss.rs"]
 mod frost_tss;
+
+#[path = "generic/simplest_ot.rs"]
+mod simplest_ot;
+
+#[path = "generic/hmrt_mta.rs"]
+mod hmrt_mta;
+
+#[path = "generic/dkls.rs"]
+mod dkls;

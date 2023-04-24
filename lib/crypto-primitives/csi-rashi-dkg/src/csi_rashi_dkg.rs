@@ -36,7 +36,7 @@ where
     Ok(sc)
 }
 
-pub fn aggregate_deals<F, G>(
+pub fn aggregate<F, G>(
     vss_commitments: &[impl AsRef<[G]>],
     shamir_x: &F,
     shamir_ys: &[F],

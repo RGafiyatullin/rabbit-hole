@@ -6,7 +6,9 @@ use rand::RngCore;
 use shamir_sss::LagrangeCoefficientAt;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "std-error", derive(thiserror::Error))]
 pub enum Error {
+    #[cfg_attr(feature = "std-error", error("Invalid shard"))]
     InvalidShard,
 }
 
@@ -112,8 +114,6 @@ where
 
         let is_valid_r = r_i == cd + ce * rho_i;
         let is_valid_z = (g * z_i) == (r_i + y_i * (lambda_i * c));
-
-        std::eprintln!("[{}] r-ok: {}; z-ok: {}", i, is_valid_r, is_valid_z);
 
         complaints[i] = !(is_valid_r && is_valid_z);
     }

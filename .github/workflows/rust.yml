@@ -37,3 +37,5 @@ jobs:
       run: make clippy
     - name: cargo test
       run: make test
+    - name: cargo build
+      run: make build

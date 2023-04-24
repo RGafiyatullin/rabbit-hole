@@ -1,19 +1,32 @@
 [workspace]
 members = [
-    "rabbit-hole",
     "lib/*/*",
     "apps/*/*",
     "tests/*",
 ]
 
 [workspace.dependencies]
+base64 = "^0.21"
 digest = "^0.10"
+dotenv = "^0.15"
+elliptic-curve = "^0.13"
 ff = "^0.13"
 group = "^0.13"
 heapless = "^0.7"
+hex = "^0.4"
+lockfile = "^0.4"
 rand = "^0.8"
+securestore = "^0.100"
+serde = "^1"
+serde_json = "^1"
+serde_yaml = "^0.9"
+sled = "^0.34"
+structopt = "^0.3"
 subtle = "^2.5"
 thiserror = "^1"
+tokio = "^1"
+tracing = "^0.1"
+tracing-subscriber = "^0.3"
 zeroize = "^1.6"
 
 k256 = {version = "^0.13", default-features = false, features = ["arithmetic"]}
@@ -23,8 +36,20 @@ sha2 = "^0.10"
 sha3 = "^0.10"
 
 csi-rashi-dkg = {path = "lib/crypto-primitives/csi-rashi-dkg", package = "rabbit-hole-crypto-primitives-csi-rashi-dkg"}
+dkls-tss = {path = "lib/crypto-primitives/dkls-tss", package = "rabbit-hole-crypto-primitives-dkls-tss"}
 feldman-vsss = {path = "lib/crypto-primitives/feldman-vsss", package = "rabbit-hole-crypto-primitives-feldman-vsss"}
 frost-tss = {path = "lib/crypto-primitives/frost-tss", package = "rabbit-hole-crypto-primitives-frost-tss"}
+hmrt-mta = {path = "lib/crypto-primitives/hmrt-mta", package = "rabbit-hole-crypto-primitives-hmrt-mta"}
 schnorr-proof = {path = "lib/crypto-primitives/schnorr-proof", package = "rabbit-hole-crypto-primitives-schnorr-proof"}
 shamir-sss = {path = "lib/crypto-primitives/shamir-sss", package = "rabbit-hole-crypto-primitives-shamir-sss"}
+simplest-ot = {path = "lib/crypto-primitives/simplest-ot", package = "rabbit-hole-crypto-primitives-simplest-ot"}
 utils = {path = "lib/crypto-primitives/utils", package = "rabbit-hole-crypto-primitives-utils"}
+
+common-interop = {path = "lib/common/interop", package = "rabbit-hole-common-interop"}
+common-logging = {path = "lib/common/logging", package = "rabbit-hole-common-logging"}
+common-macros = {path = "lib/common/macros", package = "rabbit-hole-common-macros"}
+
+cli-alice = {path = "lib/cli/alice", package = "rabbit-hole-cli-alice"}
+cli-storage = {path = "lib/cli/storage", package = "rabbit-hole-cli-storage"}
+
+curve-debug = {path = "tests/curve-debug"}

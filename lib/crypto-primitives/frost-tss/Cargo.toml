@@ -5,11 +5,16 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = []
+std-error = ["dep:thiserror"]
+
 [dependencies]
 digest = {workspace = true}
 ff = {workspace = true}
 group = {workspace = true}
 rand = {workspace = true}
+thiserror = {workspace = true, optional = true}
 
 shamir-sss = {workspace = true}
 utils = {workspace = true}
