@@ -8,7 +8,7 @@ use serde_json::json;
 use common_interop::curve_select::CurveSelect;
 use common_interop::types::{Point, Scalar};
 
-use crate::cli::*;
+use crate::cli;
 use crate::data::key::Key;
 use crate::tests::cli_utils::args;
 use crate::tests::io_utils::TestIO;
@@ -123,13 +123,13 @@ fn run_typed<F: PrimeField>(
         }))
         .expect("make io");
 
-        let cli = Cli::create_safe(args(format!(
+        let cli = cli::Cli::create_safe(args(format!(
             "{}dkg csi-rashi deal --curve {} {}",
             storage_arg, curve, key_id,
         )))
         .expect("args error");
 
-        assert_eq!(cli.run((&mut rng, &io)).expect("cli-run"), 0);
+        assert_eq!(cli::run(&cli, &mut rng, &io).expect("cli-run"), 0);
 
         let deal_output = io.stdout_as_yaml::<DealOutput>().expect("io:de");
         deal_outputs.push(deal_output);
@@ -157,11 +157,13 @@ fn run_typed<F: PrimeField>(
             "deals": deals,
         }))
         .expect("make io");
-        let cli =
-            Cli::create_safe(args(format!("{}dkg csi-rashi aggregate {}", storage_arg, key_id,)))
-                .expect("args error");
+        let cli = cli::Cli::create_safe(args(format!(
+            "{}dkg csi-rashi aggregate {}",
+            storage_arg, key_id,
+        )))
+        .expect("args error");
 
-        assert_eq!(cli.run((&mut rng, &io)).expect("cli-run"), 0);
+        assert_eq!(cli::run(&cli, &mut rng, &io).expect("cli-run"), 0);
     }
 
     let mut public_keys = vec![];
@@ -169,10 +171,10 @@ fn run_typed<F: PrimeField>(
         let key_id = key_ids[party_idx].as_str();
 
         let io = TestIO::from_empty_input();
-        let cli = Cli::create_safe(args(format!("{}keys get {}", storage_arg, key_id,)))
+        let cli = cli::Cli::create_safe(args(format!("{}keys get {}", storage_arg, key_id,)))
             .expect("args error");
 
-        assert_eq!(cli.run((&mut rng, &io)).expect("cli-run"), 0);
+        assert_eq!(cli::run(&cli, &mut rng, &io).expect("cli-run"), 0);
 
         let key: Key = io.stdout_as_yaml().expect("io:de");
         let Key::S4Share(s4_share) = key else { panic!("not an s4-share") };

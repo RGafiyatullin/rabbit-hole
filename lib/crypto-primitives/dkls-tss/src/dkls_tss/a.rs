@@ -8,6 +8,7 @@ use crate::dkls_tss::THREE;
 
 use super::{mta, Thrice, TWO};
 
+#[allow(clippy::too_many_arguments)]
 pub fn presign_choose<F, G, H, const L: usize>(
     mut rng: impl RngCore,
 
@@ -102,6 +103,7 @@ pub fn presign_finalize<F, G, H, const L: usize>(
     *t_2_a = additive_shares[1] + additive_shares[2];
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn sign<F, G, H>(
     public_key: &G,
     k_a: &F,

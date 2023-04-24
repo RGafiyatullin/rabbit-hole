@@ -18,7 +18,7 @@ impl fmt::Display for Scalar {
 impl str::FromStr for Scalar {
     type Err = &'static str;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let Some((curve_select, hex_value)) = s.split_once(":") else  {
+        let Some((curve_select, hex_value)) = s.split_once(':') else  {
             return Err("should be <curve>:<hex>")
         };
         let curve_select = CurveSelect::from_str(curve_select).map_err(|_| "invalid curve")?;

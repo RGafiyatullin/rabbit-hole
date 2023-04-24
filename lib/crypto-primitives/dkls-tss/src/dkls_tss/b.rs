@@ -32,6 +32,7 @@ pub fn presign_offer<F, G, const L: usize>(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn presign_reply<F, G, H, const L: usize>(
     r_seed: &G,
     t_0_b: &F,
@@ -87,6 +88,7 @@ pub fn presign_reply<F, G, H, const L: usize>(
     *t_2_b = additive_shares[1] + additive_shares[2];
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn sign<F, G, H>(
     public_key: &G,
     eta_phi: &F,

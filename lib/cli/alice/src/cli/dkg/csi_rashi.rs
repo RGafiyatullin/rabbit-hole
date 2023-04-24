@@ -250,7 +250,7 @@ fn run_aggregate_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
 
         vss_commitments.push(
             vss_commitment
-                .into_iter()
+                .iter()
                 .map(|p| p.restore::<G>(curve))
                 .collect::<Result<Vec<_>, _>>()?,
         );

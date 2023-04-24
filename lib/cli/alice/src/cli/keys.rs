@@ -96,7 +96,7 @@ fn run_get(get: &CmdKeyGet, io: impl IO, storage: Storage) -> Result<RetCode, cr
 fn run_add(add: &CmdKeyAdd, io: impl IO, storage: Storage) -> Result<RetCode, crate::AnyError> {
     let table = keys_table(&storage)?;
 
-    if !table.get(&add.key_id)?.is_some() {
+    if table.get(&add.key_id)?.is_none() {
         let key: Key = serde_yaml::from_reader(io.stdin())?;
         assert!(table.insert(&add.key_id, &key)?.is_none());
         Ok(0)

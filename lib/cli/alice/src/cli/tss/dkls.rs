@@ -11,10 +11,10 @@ use crate::AnyError;
 pub struct CmdDkls {}
 
 pub fn run(
-    dkls: &CmdDkls,
-    rng: impl RngCore,
-    io: impl IO,
-    storage: Storage,
+    _dkls: &CmdDkls,
+    _rng: impl RngCore,
+    _io: impl IO,
+    _storage: Storage,
 ) -> Result<RetCode, AnyError> {
     unimplemented!()
 }

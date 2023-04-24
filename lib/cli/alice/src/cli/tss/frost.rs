@@ -155,7 +155,7 @@ fn run_prepare_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
 
     let nonces = nonces
         .into_iter()
-        .map(|(d, e)| ((Scalar::from_value(curve, d), Scalar::from_value(curve, e))))
+        .map(|(d, e)| (Scalar::from_value(curve, d), Scalar::from_value(curve, e)))
         .collect::<Vec<_>>();
     let commitments = commitments
         .into_iter()

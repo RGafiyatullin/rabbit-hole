@@ -69,7 +69,7 @@ impl<F: PrimeField> Sum<Self> for G<F> {
 }
 impl<'a, F: PrimeField> Sum<&'a Self> for G<F> {
     fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        iter.map(|v| *v).sum()
+        iter.copied().sum()
     }
 }
 

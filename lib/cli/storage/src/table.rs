@@ -103,5 +103,5 @@ fn tree_name_for_curve<N>(curve: CurveSelect) -> String {
     format!("{}/{}", curve, std::any::type_name::<N>())
 }
 fn tree_name<N>() -> String {
-    format!("{}", std::any::type_name::<N>())
+    std::any::type_name::<N>().to_owned()
 }
