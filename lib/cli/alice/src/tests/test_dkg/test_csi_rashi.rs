@@ -175,7 +175,7 @@ fn run_typed<F: PrimeField>(
         let key_id = key_ids[party_idx].as_str();
 
         let io = TestIO::from_empty_input();
-        let cli = cli::Cli::create_safe(args(format!("{}keys get {}", storage_arg, key_id,)))
+        let cli = cli::Cli::create_safe(args(format!("{}keys export {}", storage_arg, key_id,)))
             .expect("args error");
 
         assert_eq!(cli::run(&cli, &mut rng, &io).expect("cli-run"), 0);
