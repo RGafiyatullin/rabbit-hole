@@ -72,26 +72,6 @@ pub fn run(
     }
 }
 
-// fn run_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
-//     frost: &CmdFrost,
-//     s4_share: &S4Share,
-//     rng: impl RngCore,
-//     io: impl IO,
-//     storage: Storage,
-// ) -> Result<RetCode, AnyError> {
-//     match &frost.cmd {
-//         Cmd::Prepare(sub) => run_prepare(sub, rng, io, storage),
-//         Cmd::Sign(sub) => specialize_call!(
-//             run_sign, (frost, s4_share, io, storage),
-//             ((), (), sub.hash_function),
-//             [(_ => F)],
-//             [(_ => G)],
-//             [(HashFunctionSelect::Sha2_256 => sha2::Sha256), (HashFunctionSelect::Sha3_256 =>
-// sha3::Sha3_256)]         ).ok_or("Unsupported hash-function")?,
-//         Cmd::Aggregate => unimplemented!(),
-//     }
-// }
-
 fn run_prepare(
     prepare: &CmdPrepare,
     rng: impl RngCore,
