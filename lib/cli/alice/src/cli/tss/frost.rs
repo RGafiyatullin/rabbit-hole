@@ -18,9 +18,6 @@ use crate::{AnyError, RetCode};
 
 #[derive(Debug, StructOpt)]
 pub struct CmdFrost {
-    #[structopt(long, short)]
-    key_id: String,
-
     #[structopt(subcommand)]
     cmd: Cmd,
 }
@@ -29,7 +26,7 @@ pub struct CmdFrost {
 enum Cmd {
     Prepare(CmdPrepare),
     Sign(CmdSign),
-    Aggregate,
+    Aggregate(CmdAggregate),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,13 +38,25 @@ struct Nonces {
 #[derive(Debug, StructOpt)]
 struct CmdPrepare {
     #[structopt(long, short)]
+    key_id: String,
+
+    #[structopt(long, short)]
     count: usize,
 }
 
 #[derive(Debug, StructOpt)]
 struct CmdSign {
     #[structopt(long, short)]
+    key_id: String,
+
+    #[structopt(long, short)]
     hash_function: HashFunctionSelect,
+}
+
+#[derive(Debug, StructOpt)]
+struct CmdAggregate {
+    #[structopt(long, short)]
+    curve: CurveSelect,
 }
 
 pub fn run(
@@ -56,42 +65,52 @@ pub fn run(
     io: impl IO,
     storage: Storage,
 ) -> Result<RetCode, AnyError> {
-    let tab_keys = keys_table(&storage)?;
-    let Key::S4Share(s4_share) = tab_keys.get(&frost.key_id)?.ok_or("No such key")? else {
-        return Err("the key should be an S4-share".into());
-    };
-
-    let curve = s4_share.curve;
-
-    specialize_call!(run_typed, (frost, &s4_share, rng, io, storage), curve, [
-        (CurveSelect::Secp256k1 => k256::Scalar, k256::ProjectivePoint),
-        (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
-        (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
-    ]).ok_or("Unsupported curve")?
+    match &frost.cmd {
+        Cmd::Prepare(sub) => run_prepare(sub, rng, io, storage),
+        Cmd::Sign(sub) => run_sign(sub, io, storage),
+        Cmd::Aggregate(sub) => run_aggregate(sub, io),
+    }
 }
 
-fn run_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
-    frost: &CmdFrost,
-    s4_share: &S4Share,
+// fn run_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
+//     frost: &CmdFrost,
+//     s4_share: &S4Share,
+//     rng: impl RngCore,
+//     io: impl IO,
+//     storage: Storage,
+// ) -> Result<RetCode, AnyError> {
+//     match &frost.cmd {
+//         Cmd::Prepare(sub) => run_prepare(sub, rng, io, storage),
+//         Cmd::Sign(sub) => specialize_call!(
+//             run_sign, (frost, s4_share, io, storage),
+//             ((), (), sub.hash_function),
+//             [(_ => F)],
+//             [(_ => G)],
+//             [(HashFunctionSelect::Sha2_256 => sha2::Sha256), (HashFunctionSelect::Sha3_256 =>
+// sha3::Sha3_256)]         ).ok_or("Unsupported hash-function")?,
+//         Cmd::Aggregate => unimplemented!(),
+//     }
+// }
+
+fn run_prepare(
+    prepare: &CmdPrepare,
     rng: impl RngCore,
     io: impl IO,
     storage: Storage,
 ) -> Result<RetCode, AnyError> {
-    match &frost.cmd {
-        Cmd::Prepare(sub) => run_prepare::<F, G>(frost, sub, s4_share, rng, io, storage),
-        Cmd::Sign(sub) => specialize_call!(
-            run_sign, (frost, s4_share, io, storage),
-            ((), (), sub.hash_function),
-            [(_ => F)],
-            [(_ => G)],
-            [(HashFunctionSelect::Sha2_256 => sha2::Sha256), (HashFunctionSelect::Sha3_256 => sha3::Sha3_256)]
-        ).ok_or("Unsupported hash-function")?,
-        Cmd::Aggregate => unimplemented!(),
-    }
+    let tab_keys = keys_table(&storage)?;
+    let Key::S4Share(s4_share) = tab_keys.get(&prepare.key_id)?.ok_or("No such key")? else {
+        return Err("the key should be an S4-share".into());
+    };
+    let curve = s4_share.curve;
+    specialize_call!(run_prepare_typed, (prepare, &s4_share, rng, io, storage), curve, [
+        (CurveSelect::Secp256k1 => k256::Scalar, k256::ProjectivePoint),
+        (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
+        (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
+    ]).ok_or(format!("Unsupported curve: {}", curve))?
 }
 
-fn run_prepare<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
-    frost: &CmdFrost,
+fn run_prepare_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
     prepare: &CmdPrepare,
     s4_share: &S4Share,
     rng: impl RngCore,
@@ -119,7 +138,7 @@ fn run_prepare<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
     for i in 0..prepare.count {
         let (d, e) = nonces[i].clone();
         let (pd, pe) = &commitments[i];
-        tab_nonces.insert(&nonce_key(&frost.key_id, pd, pe), &Nonces { d, e })?;
+        tab_nonces.insert(&nonce_key(&prepare.key_id, pd, pe), &Nonces { d, e })?;
     }
 
     serde_yaml::to_writer(io.stdout(), &commitments)?;
@@ -127,8 +146,32 @@ fn run_prepare<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
     Ok(0)
 }
 
-fn run_sign<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
-    frost: &CmdFrost,
+fn run_sign(sign: &CmdSign, io: impl IO, storage: Storage) -> Result<RetCode, AnyError> {
+    let tab_keys = keys_table(&storage)?;
+    let Key::S4Share(s4_share) = tab_keys.get(&sign.key_id)?.ok_or("No such key")? else {
+        return Err("the key should be an S4-share".into());
+    };
+    let curve = s4_share.curve;
+    let hash_function = sign.hash_function;
+
+    specialize_call!(
+        run_sign_typed,
+        (sign, &s4_share, io, storage),
+        (curve, hash_function),
+        [
+            (CurveSelect::Secp256k1 => k256::Scalar, k256::ProjectivePoint),
+            (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
+            (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
+        ],
+        [
+            (HashFunctionSelect::Sha2_256 => sha2::Sha256),
+            (HashFunctionSelect::Sha3_256 => sha3::Sha3_256)
+        ]
+    ).ok_or(format!("Unsupported curve or hash-function: {}/{}", curve, hash_function))?
+}
+
+fn run_sign_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
+    sign: &CmdSign,
     s4_share: &S4Share,
     io: impl IO,
     storage: Storage,
@@ -166,7 +209,7 @@ fn run_sign<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
     let public_key = s4_share.public_key.restore::<G>(curve)?;
 
     let (_, cd, ce) = &input.signers[participant_id];
-    let nonce_key = nonce_key(&frost.key_id, cd, ce);
+    let nonce_key = nonce_key(&sign.key_id, cd, ce);
 
     let (shamir_xs, commitments): (Vec<_>, Vec<_>) = {
         let tmp = input
@@ -207,6 +250,10 @@ fn run_sign<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
     )?;
 
     Ok(0)
+}
+
+fn run_aggregate(aggregate: &CmdAggregate, io: impl IO) -> Result<RetCode, AnyError> {
+    unimplemented!()
 }
 
 fn nonce_key(key_id: &str, cd: &Point, ce: &Point) -> String {
