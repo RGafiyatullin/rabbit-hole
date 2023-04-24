@@ -12,7 +12,7 @@ use structopt::StructOpt;
 use cli_storage::{Storage, Table};
 
 use crate::caps::IO;
-use crate::data::key::{Key, S4Share};
+use crate::data::{Key, S4Share};
 use crate::{AnyError, RetCode};
 
 const MAX_THRESHOLD: usize = 32;
@@ -38,7 +38,7 @@ struct CmdReset {
 
 #[derive(Debug, StructOpt)]
 struct CmdDeal {
-    #[structopt(long, short)]
+    #[structopt(long, short, env = "ALICE_CURVE")]
     curve: CurveSelect,
 
     #[structopt(name = "KEY-ID")]
@@ -122,7 +122,6 @@ fn run_deal<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
     }
     #[derive(Serialize)]
     struct Output {
-        threshold: usize,
         commitment: Vec<Point>,
         deals: HashMap<Scalar, Scalar>,
     }
@@ -172,7 +171,7 @@ fn run_deal<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
         .is_none());
     let _s4_x = s4_xs.remove(input.this);
 
-    let output = Output { threshold, commitment, deals: s4_xs.into_iter().zip(s4_ys).collect() };
+    let output = Output { commitment, deals: s4_xs.into_iter().zip(s4_ys).collect() };
 
     serde_yaml::to_writer(io.stdout(), &output)?;
 

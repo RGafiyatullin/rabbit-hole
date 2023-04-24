@@ -17,7 +17,7 @@ pub enum CmdVerify {
 
 #[derive(Debug, StructOpt)]
 pub struct CmdVerifySchnorr {
-    #[structopt(long, short)]
+    #[structopt(long, short, env = "ALICE_CURVE")]
     curve: CurveSelect,
 }
 

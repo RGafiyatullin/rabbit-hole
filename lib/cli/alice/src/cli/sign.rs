@@ -10,7 +10,7 @@ use common_interop::transcript::Transcript;
 use common_interop::types::{Point, Scalar};
 
 use crate::caps::IO;
-use crate::data::key::{FullKey, Key};
+use crate::data::{FullKey, Key};
 use crate::{transcript, AnyError, RetCode};
 
 #[derive(Debug, StructOpt)]

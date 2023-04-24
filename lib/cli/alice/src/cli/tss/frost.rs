@@ -15,7 +15,7 @@ use structopt::StructOpt;
 use cli_storage::Storage;
 
 use crate::caps::IO;
-use crate::data::key::{Key, S4Share};
+use crate::data::{Key, S4Share};
 use crate::{transcript, AnyError, RetCode};
 
 #[derive(Debug, StructOpt)]
@@ -57,7 +57,7 @@ struct CmdSign {
 
 #[derive(Debug, StructOpt)]
 struct CmdAggregate {
-    #[structopt(long, short)]
+    #[structopt(long, short, env = "ALICE_CURVE")]
     curve: CurveSelect,
 
     #[structopt(long, short)]

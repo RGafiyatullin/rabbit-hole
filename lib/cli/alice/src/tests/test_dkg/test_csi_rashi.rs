@@ -9,7 +9,7 @@ use common_interop::curve_select::CurveSelect;
 use common_interop::types::{Point, Scalar};
 
 use crate::cli;
-use crate::data::key::Key;
+use crate::data::Key;
 use crate::tests::cli_utils::args;
 use crate::tests::io_utils::TestIO;
 
@@ -52,6 +52,10 @@ fn run_ristretto25519_in_std_dir() {
     run_various_configurations(CurveSelect::Ristretto25519, "ri", false)
 }
 
+const MIN_PARTIES: usize = 2;
+const MAX_PARTIES: usize = 3;
+const MIN_THRESHOLD: usize = 2;
+
 fn run_various_configurations(curve: CurveSelect, prefix: &str, use_temp_dir: bool) {
     let tmp: tempfile::TempDir;
     let storage_override = if use_temp_dir {
@@ -62,13 +66,13 @@ fn run_various_configurations(curve: CurveSelect, prefix: &str, use_temp_dir: bo
         None
     };
 
-    for p in 2..=4 {
-        for t in 2..=p {
+    for p in MIN_PARTIES..=MAX_PARTIES {
+        for t in MIN_THRESHOLD..=p {
             run_untyped(
                 curve,
                 format!("{}-{}-of-{}", prefix, t, p).as_str(),
-                2,
-                4,
+                t,
+                p,
                 storage_override,
             );
         }
@@ -108,7 +112,7 @@ fn run_typed<F: PrimeField>(
         .collect::<Vec<_>>();
 
     let key_ids = (0..parties_count)
-        .map(|idx| format!("{}:{}", key_prefix, idx))
+        .map(|idx| format!("{}:{}", key_prefix, idx + 1))
         .collect::<Vec<_>>();
 
     let mut deal_outputs: Vec<DealOutput> = vec![];

@@ -10,6 +10,7 @@ use crate::{AnyError, RetCode};
 
 mod dkg;
 mod keys;
+mod s4;
 mod sign;
 mod tss;
 mod verify;
@@ -25,11 +26,12 @@ pub struct Cli {
 
 #[derive(Debug, StructOpt)]
 enum Sub {
-    Keys(keys::CmdKeys),
     Dkg(dkg::CmdDkg),
+    Keys(keys::CmdKeys),
+    S4(s4::CmdS4),
+    Sign(sign::CmdSign),
     Tss(tss::CmdTss),
     Verify(verify::CmdVerify),
-    Sign(sign::CmdSign),
 }
 
 impl Cli {
@@ -51,10 +53,11 @@ where
     let open_storage = || Storage::open(cli.storage_path()?.to_str().ok_or("invalid path")?);
 
     match &cli.cmd {
-        Sub::Keys(sub) => keys::run(sub, io, open_storage()?),
         Sub::Dkg(sub) => dkg::run(sub, rng, io, open_storage()?),
-        Sub::Tss(sub) => tss::run(sub, rng, io, open_storage()?),
+        Sub::Keys(sub) => keys::run(sub, rng, io, open_storage()?),
+        Sub::S4(sub) => s4::run(sub, rng, io, open_storage()?),
         Sub::Sign(sub) => sign::run(sub, rng, io, open_storage()?),
+        Sub::Tss(sub) => tss::run(sub, rng, io, open_storage()?),
         Sub::Verify(sub) => verify::run(sub, io),
     }
 }
