@@ -7,10 +7,23 @@ use structopt::StructOpt;
 use crate::caps::IO;
 use crate::{AnyError, RetCode};
 
+mod dkg;
 mod keys;
 
 pub trait CliRun<Prev> {
     fn run(&self, prev: Prev) -> Result<RetCode, AnyError>;
+}
+
+pub trait CliRunnable {
+    fn run(self) -> Result<RetCode, AnyError>;
+}
+impl<C, A> CliRunnable for (&C, A)
+where
+    C: CliRun<A>,
+{
+    fn run(self) -> Result<RetCode, AnyError> {
+        <C as CliRun<A>>::run(self.0, self.1)
+    }
 }
 
 #[derive(Debug, StructOpt)]
@@ -25,6 +38,7 @@ pub struct Cli {
 #[derive(Debug, StructOpt)]
 enum Sub {
     Keys(keys::CmdKeys),
+    Dkg(dkg::CmdDkg),
 }
 
 impl Cli {
@@ -47,6 +61,7 @@ where
 
         match &self.cmd {
             Sub::Keys(sub) => sub.run((io, storage)),
+            Sub::Dkg(sub) => sub.run((io, storage)),
         }
     }
 }

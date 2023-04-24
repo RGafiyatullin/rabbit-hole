@@ -50,7 +50,6 @@ common-logging = {path = "lib/common/logging", package = "rabbit-hole-common-log
 common-macros = {path = "lib/common/macros", package = "rabbit-hole-common-macros"}
 
 cli-alice = {path = "lib/cli/alice", package = "rabbit-hole-cli-alice"}
-cli-alice-old = {path = "lib/cli/alice-old", package = "rabbit-hole-cli-alice-old"}
 cli-storage = {path = "lib/cli/storage", package = "rabbit-hole-cli-storage"}
 
 curve-debug = {path = "tests/curve-debug"}

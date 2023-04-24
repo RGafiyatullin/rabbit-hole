@@ -4,12 +4,12 @@ macro_rules! specialize_call {
         ( $($acc_p:pat),* ),
         ( $($acc_t:ty),* ),
         $func:tt, $args:tt, $select:tt,
-        [ ($p:pat => $t:ty) $(, $p_t:tt)* $(,)* ],
+        [ ($p:pat => $($t:ty),+ ) $(, $p_t:tt)* $(,)* ],
         $mappings:tt
     ) => {
         specialize_call!(@specialize_call,
             ( $($acc_p,)* $p ),
-            ( $($acc_t,)* $t ),
+            ( $($acc_t,)* $($t),+ ),
 
             $func, $args, $select,
             $mappings

@@ -1,13 +1,13 @@
+use serde::de::Error as DeError;
+use serde::{Deserialize, Serialize};
+use std::{fmt, str};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CurveSelect {
     Secp256k1,
     Ed25519,
     Ristretto25519,
 }
-
-use serde::de::Error as DeError;
-use serde::{Deserialize, Serialize};
-use std::{fmt, str};
 
 const SECP256K1: &str = "secp256k1";
 const ED25519: &str = "ed25519";
