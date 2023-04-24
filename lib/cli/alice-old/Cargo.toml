@@ -1,5 +1,5 @@
 [package]
-name = "rabbit-hole-cli-alice"
+name = "rabbit-hole-cli-alice-old"
 version = "0.1.0"
 edition = "2021"
 
@@ -38,6 +38,3 @@ common-interop = {workspace = true}
 common-macros = {workspace = true}
 
 cli-storage = {workspace = true}
-
-[dev-dependencies]
-tempfile = "^3"

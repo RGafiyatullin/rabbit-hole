@@ -5,6 +5,8 @@ pub enum CurveSelect {
     Ristretto25519,
 }
 
+use serde::de::Error as DeError;
+use serde::{Deserialize, Serialize};
 use std::{fmt, str};
 
 const SECP256K1: &str = "secp256k1";
@@ -44,5 +46,25 @@ impl str::FromStr for CurveSelect {
         };
 
         Ok(out)
+    }
+}
+
+impl Serialize for CurveSelect {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.as_str().serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for CurveSelect {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(<D::Error as DeError>::custom)
     }
 }

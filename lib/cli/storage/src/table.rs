@@ -15,10 +15,22 @@ pub struct Table<N, T = N> {
 }
 
 impl<N, T> Table<N, T> {
-    pub fn open(storage: impl Into<Storage>, curve: CurveSelect) -> Result<Self, AnyError> {
+    pub fn open(storage: impl Into<Storage>) -> Result<Self, AnyError> {
+        let storage = storage.into();
+        let tree_name = tree_name::<N>();
+        let tree = storage.sled_db.open_tree(tree_name)?;
+        let table = Self { storage, tree, _pd: Default::default() };
+
+        Ok(table)
+    }
+
+    pub fn open_for_curve(
+        storage: impl Into<Storage>,
+        curve: CurveSelect,
+    ) -> Result<Self, AnyError> {
         let storage = storage.into();
 
-        let tree_name = tree_name::<N>(curve);
+        let tree_name = tree_name_for_curve::<N>(curve);
         let tree = storage.sled_db.open_tree(tree_name)?;
         let table = Self { storage, tree, _pd: Default::default() };
 
@@ -87,6 +99,9 @@ impl<N, T> Table<N, T> {
     }
 }
 
-fn tree_name<N>(curve: CurveSelect) -> String {
+fn tree_name_for_curve<N>(curve: CurveSelect) -> String {
     format!("{}/{}", curve, std::any::type_name::<N>())
+}
+fn tree_name<N>() -> String {
+    format!("{}", std::any::type_name::<N>())
 }

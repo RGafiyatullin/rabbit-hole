@@ -1,8 +1,8 @@
-use cli_alice::cli::Cli;
+use cli_alice::caps::io::StdIO;
+use cli_alice::cli::{Cli, CliRun};
 use cli_alice::AnyError;
 
 fn main() -> Result<(), AnyError> {
-    let cli = Cli::bootstrap(std::env::args());
-
-    cli.run(())
+    let ret_code = Cli::create(std::env::args()).run(StdIO)?;
+    std::process::exit(ret_code)
 }

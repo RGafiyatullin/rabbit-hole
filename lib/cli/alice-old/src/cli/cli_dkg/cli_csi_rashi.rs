@@ -48,11 +48,11 @@ where
 
 impl<F, G, H> CliSciRashi<F, G, H> {
     fn sessions_table(&self, cli: &Cli<F, G, H>) -> Result<Table<Session<F, G>>, AnyError> {
-        let table = Table::<Session<F, G>>::open(cli.open_storage()?, cli.curve)?;
+        let table = Table::<Session<F, G>>::open_for_curve(cli.open_storage()?, cli.curve)?;
         Ok(table)
     }
     fn s4_shares_table(&self, cli: &Cli<F, G, H>) -> Result<Table<S4Share<F, G>>, AnyError> {
-        let table = Table::<S4Share<F, G>>::open(cli.open_storage()?, cli.curve)?;
+        let table = Table::<S4Share<F, G>>::open_for_curve(cli.open_storage()?, cli.curve)?;
         Ok(table)
     }
 }

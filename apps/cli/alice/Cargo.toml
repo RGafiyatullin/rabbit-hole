@@ -9,6 +9,7 @@ edition = "2021"
 structopt = {workspace = true}
 
 cli-alice = {workspace = true}
+cli-alice-old = {workspace = true}
 
 common-interop = {workspace = true}
 common-logging = {workspace = true}

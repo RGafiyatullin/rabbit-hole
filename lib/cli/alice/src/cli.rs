@@ -1,71 +1,65 @@
-use std::cell::RefCell;
-use std::marker::PhantomData;
+use std::ffi::OsString;
 use std::path::PathBuf;
 
-use digest::Digest;
-use ff::PrimeField;
-use group::{Group, GroupEncoding};
+use cli_storage::Storage;
 use structopt::StructOpt;
 
-use common_interop::curve_select::CurveSelect;
-use common_interop::hash_function_select::HashFunctionSelect;
+use crate::caps::IO;
+use crate::{AnyError, RetCode};
 
-use crate::AnyError;
-
-mod bootstrap;
-mod capabilities;
-
-mod cli_dkg;
-mod cli_keys;
-mod cli_tss;
+mod keys;
 
 pub trait CliRun<Prev> {
-    fn run(&self, prev: Prev) -> Result<(), AnyError>;
+    fn run(&self, prev: Prev) -> Result<RetCode, AnyError>;
 }
 
 #[derive(Debug, StructOpt)]
-pub struct Cli<F, G, H> {
-    #[structopt(long, short, env = "ALICE_CURVE", default_value = "secp256k1")]
-    pub curve: CurveSelect,
-
-    #[structopt(long, short, env = "ALICE_HASH_FUNCTION", default_value = "sha3-256")]
-    pub hash_function: HashFunctionSelect,
-
-    #[structopt(long, short, env = "ALICE_STORAGE_PATH")]
-    pub storage_path: Option<PathBuf>,
+pub struct Cli {
+    #[structopt(long, short, env = "ALICE_STORAGE")]
+    storage_path: Option<PathBuf>,
 
     #[structopt(subcommand)]
-    cmd: Cmd<F, G, H>,
-
-    #[structopt(skip)]
-    _pd: PhantomData<(F, G, H)>,
-
-    #[structopt(skip)]
-    storage: RefCell<Option<::cli_storage::Storage>>,
+    cmd: Sub,
 }
 
-impl<F, G, H> CliRun<()> for Cli<F, G, H>
+#[derive(Debug, StructOpt)]
+enum Sub {
+    Keys(keys::CmdKeys),
+}
+
+impl Cli {
+    pub fn create(args: impl IntoIterator<Item = impl Into<OsString> + Clone>) -> Self {
+        <Self as StructOpt>::from_iter(args)
+    }
+    pub fn create_safe(
+        args: impl IntoIterator<Item = impl Into<OsString> + Clone>,
+    ) -> Result<Self, AnyError> {
+        <Self as StructOpt>::from_iter_safe(args).map_err(Into::into)
+    }
+}
+
+impl<I> CliRun<I> for Cli
 where
-    F: PrimeField,
-    G: Group<Scalar = F> + GroupEncoding,
-    H: Digest,
+    I: IO,
 {
-    fn run(&self, (): ()) -> Result<(), AnyError> {
-        // eprintln!("F: {}", std::any::type_name::<F>());
-        // eprintln!("G: {}", std::any::type_name::<G>());
-        // eprintln!("H: {}", std::any::type_name::<H>());
+    fn run(&self, io: I) -> Result<RetCode, AnyError> {
+        let storage = Storage::open(self.storage_path()?.to_str().ok_or("invalid path")?)?;
 
         match &self.cmd {
-            Cmd::Dkg(sub) => sub.run(self),
-            Cmd::Tss(sub) => sub.run(self),
-            Cmd::Keys(sub) => sub.run(self),
+            Sub::Keys(sub) => sub.run((io, storage)),
         }
     }
 }
 
-#[derive(Debug, StructOpt)]
-enum Cmd<F, G, H> {
-    Keys(cli_keys::CliKeys<F, G, H>),
-    Dkg(cli_dkg::CliDkg<F, G, H>),
-    Tss(cli_tss::CliTss<F, G, H>),
+impl Cli {
+    fn storage_path(&self) -> Result<PathBuf, AnyError> {
+        if let Some(path) = self.storage_path.as_ref() {
+            Ok(path.to_owned())
+        } else if let Ok(path) = std::env::var("HOME") {
+            let path = path.parse::<PathBuf>()?;
+            Ok(path.join(".alice"))
+        } else {
+            Err("Failed to determine the storage-path".into())
+        }
+    }
 }
