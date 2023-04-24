@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use cli_storage::Table;
 use common_interop::curve_select::CurveSelect;
 use common_interop::hash_function_select::HashFunctionSelect;
@@ -57,6 +59,9 @@ struct CmdSign {
 struct CmdAggregate {
     #[structopt(long, short)]
     curve: CurveSelect,
+
+    #[structopt(long, short)]
+    hash_function: HashFunctionSelect,
 }
 
 pub fn run(
@@ -88,6 +93,48 @@ fn run_prepare(
         (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
         (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
     ]).ok_or(format!("Unsupported curve: {}", curve))?
+}
+
+fn run_sign(sign: &CmdSign, io: impl IO, storage: Storage) -> Result<RetCode, AnyError> {
+    let tab_keys = keys_table(&storage)?;
+    let Key::S4Share(s4_share) = tab_keys.get(&sign.key_id)?.ok_or("No such key")? else {
+        return Err("the key should be an S4-share".into());
+    };
+    let curve = s4_share.curve;
+    let hash_function = sign.hash_function;
+
+    specialize_call!(
+        run_sign_typed,
+        (sign, &s4_share, io, storage),
+        (curve, hash_function),
+        [
+            (CurveSelect::Secp256k1 => k256::Scalar, k256::ProjectivePoint),
+            (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
+            (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
+        ],
+        [
+            (HashFunctionSelect::Sha2_256 => sha2::Sha256),
+            (HashFunctionSelect::Sha3_256 => sha3::Sha3_256)
+        ]
+    ).ok_or(format!("Unsupported curve or hash-function: {}/{}", curve, hash_function))?
+}
+
+fn run_aggregate(aggregate: &CmdAggregate, io: impl IO) -> Result<RetCode, AnyError> {
+    let curve = aggregate.curve;
+    let hash_function = aggregate.hash_function;
+    specialize_call!(
+        run_aggregate_typed, (aggregate, io),
+        (curve, hash_function),
+        [
+            (CurveSelect::Secp256k1 => k256::Scalar, k256::ProjectivePoint),
+            (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
+            (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
+        ],
+        [
+            (HashFunctionSelect::Sha2_256 => sha2::Sha256),
+            (HashFunctionSelect::Sha3_256 => sha3::Sha3_256)
+        ]
+    ).ok_or(format!("Unsupported curve or hash-function: {}/{}", curve, hash_function))?
 }
 
 fn run_prepare_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
@@ -124,30 +171,6 @@ fn run_prepare_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding>(
     serde_yaml::to_writer(io.stdout(), &commitments)?;
 
     Ok(0)
-}
-
-fn run_sign(sign: &CmdSign, io: impl IO, storage: Storage) -> Result<RetCode, AnyError> {
-    let tab_keys = keys_table(&storage)?;
-    let Key::S4Share(s4_share) = tab_keys.get(&sign.key_id)?.ok_or("No such key")? else {
-        return Err("the key should be an S4-share".into());
-    };
-    let curve = s4_share.curve;
-    let hash_function = sign.hash_function;
-
-    specialize_call!(
-        run_sign_typed,
-        (sign, &s4_share, io, storage),
-        (curve, hash_function),
-        [
-            (CurveSelect::Secp256k1 => k256::Scalar, k256::ProjectivePoint),
-            (CurveSelect::Ed25519 => curve25519::scalar::Scalar, curve25519::edwards::EdwardsPoint),
-            (CurveSelect::Ristretto25519 => curve25519::scalar::Scalar, curve25519::ristretto::RistrettoPoint),
-        ],
-        [
-            (HashFunctionSelect::Sha2_256 => sha2::Sha256),
-            (HashFunctionSelect::Sha3_256 => sha3::Sha3_256)
-        ]
-    ).ok_or(format!("Unsupported curve or hash-function: {}/{}", curve, hash_function))?
 }
 
 fn run_sign_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
@@ -232,8 +255,70 @@ fn run_sign_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest
     Ok(0)
 }
 
-fn run_aggregate(aggregate: &CmdAggregate, io: impl IO) -> Result<RetCode, AnyError> {
-    unimplemented!()
+fn run_aggregate_typed<F: PrimeField, G: Group<Scalar = F> + GroupEncoding, H: Digest>(
+    aggregate: &CmdAggregate,
+    io: impl IO,
+) -> Result<RetCode, AnyError> {
+    let curve = aggregate.curve;
+
+    #[derive(Deserialize)]
+    struct Shard {
+        c: (Point, Point),
+        y: Point,
+        r: Point,
+        z: Scalar,
+    }
+
+    #[derive(Deserialize)]
+    struct Input {
+        transcript: Transcript,
+        shards: HashMap<Scalar, Shard>,
+    }
+
+    #[derive(Serialize)]
+    struct Output {
+        y: Point,
+        r: Point,
+        s: Scalar,
+    }
+
+    let input: Input = serde_yaml::from_reader(io.stdin())?;
+    let mut shards: Vec<(G, G, F)> = vec![];
+    let mut commitments: Vec<(G, G)> = vec![];
+    let mut shamir_xs: Vec<F> = vec![];
+    let mut complaints: Vec<bool> = vec![false; input.shards.len()];
+
+    for (shamir_x, Shard { c: (cd, ce), y, r, z }) in input.shards.into_iter() {
+        let shamir_x = shamir_x.restore::<F>(curve)?;
+        let cd = cd.restore::<G>(curve)?;
+        let ce = ce.restore::<G>(curve)?;
+        let y = y.restore::<G>(curve)?;
+        let r = r.restore::<G>(curve)?;
+        let z = z.restore::<F>(curve)?;
+
+        shamir_xs.push(shamir_x);
+        commitments.push((cd, ce));
+        shards.push((y, r, z));
+    }
+
+    let (y, r, s) = frost_tss::aggregate::<F, G, H>(
+        shards.as_ref(),
+        shamir_xs.as_ref(),
+        commitments.as_ref(),
+        complaints.as_mut(),
+        |y, r| transcript::produce_challenge(&input.transcript, y, r).expect("Invalid transcript"),
+    )?;
+
+    serde_yaml::to_writer(
+        io.stdout(),
+        &Output {
+            y: Point::from_value(curve, y),
+            r: Point::from_value(curve, r),
+            s: Scalar::from_value(curve, s),
+        },
+    )?;
+
+    Ok(0)
 }
 
 fn nonce_key(key_id: &str, cd: &Point, ce: &Point) -> String {
