@@ -10,10 +10,7 @@ use crate::{AnyError, RetCode};
 
 mod dkg;
 mod keys;
-
-pub trait CliRun<Prev> {
-    fn run(&self, prev: Prev) -> Result<RetCode, AnyError>;
-}
+mod tss;
 
 #[derive(Debug, StructOpt)]
 pub struct Cli {
@@ -28,6 +25,7 @@ pub struct Cli {
 enum Sub {
     Keys(keys::CmdKeys),
     Dkg(dkg::CmdDkg),
+    Tss(tss::CmdTss),
 }
 
 impl Cli {
@@ -41,18 +39,17 @@ impl Cli {
     }
 }
 
-impl<R, I> CliRun<(R, I)> for Cli
+pub fn run<R, I>(cli: &Cli, rng: R, io: I) -> Result<RetCode, AnyError>
 where
     R: RngCore,
     I: IO,
 {
-    fn run(&self, (rng, io): (R, I)) -> Result<RetCode, AnyError> {
-        let storage = Storage::open(self.storage_path()?.to_str().ok_or("invalid path")?)?;
+    let storage = Storage::open(cli.storage_path()?.to_str().ok_or("invalid path")?)?;
 
-        match &self.cmd {
-            Sub::Keys(sub) => sub.run((io, storage)),
-            Sub::Dkg(sub) => sub.run((rng, io, storage)),
-        }
+    match &cli.cmd {
+        Sub::Keys(sub) => keys::run(sub, io, storage),
+        Sub::Dkg(sub) => dkg::run(sub, rng, io, storage),
+        Sub::Tss(sub) => tss::run(sub, rng, io, storage),
     }
 }
 

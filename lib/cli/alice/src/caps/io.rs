@@ -30,9 +30,9 @@ where
     }
 }
 
-pub struct StdIO;
+pub struct ProcessIO;
 
-impl IO for StdIO {
+impl IO for ProcessIO {
     type Stdout = StdoutLock<'static>;
     type Stderr = StderrLock<'static>;
     type Stdin = StdinLock<'static>;

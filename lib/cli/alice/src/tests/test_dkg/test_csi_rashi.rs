@@ -19,8 +19,6 @@ struct DealOutput {
     commitment: Vec<Point>,
 }
 
-
-
 #[test]
 fn run_secp256k1_in_tmp_dir() {
     run_various_configurations(CurveSelect::Secp256k1, "k1", true)
@@ -54,7 +52,6 @@ fn run_ristretto25519_in_std_dir() {
     run_various_configurations(CurveSelect::Ristretto25519, "ri", false)
 }
 
-
 fn run_various_configurations(curve: CurveSelect, prefix: &str, use_temp_dir: bool) {
     let tmp: tempfile::TempDir;
     let storage_override = if use_temp_dir {
@@ -67,7 +64,13 @@ fn run_various_configurations(curve: CurveSelect, prefix: &str, use_temp_dir: bo
 
     for p in 2..=4 {
         for t in 2..=p {
-            run_untyped(curve, format!("{}-{}-of-{}", prefix, t, p).as_str(), 2, 4, storage_override);
+            run_untyped(
+                curve,
+                format!("{}-{}-of-{}", prefix, t, p).as_str(),
+                2,
+                4,
+                storage_override,
+            );
         }
     }
 }

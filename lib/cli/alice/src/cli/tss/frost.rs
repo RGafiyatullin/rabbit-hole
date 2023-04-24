@@ -4,28 +4,28 @@ use structopt::StructOpt;
 use cli_storage::Storage;
 
 use crate::caps::IO;
-use crate::{AnyError, RetCode};
-
-mod csi_rashi;
 
 #[derive(Debug, StructOpt)]
-pub struct CmdDkg {
+pub struct CmdFrost {
+    #[structopt(long, short)]
+    key_id: String,
+
     #[structopt(subcommand)]
     cmd: Cmd,
 }
 
 #[derive(Debug, StructOpt)]
 enum Cmd {
-    CsiRashi(csi_rashi::CmdCsiRashi),
+    Prepare,
+    Sign,
+    Aggregate,
 }
 
 pub fn run(
-    dkg: &CmdDkg,
+    dkls: &CmdFrost,
     rng: impl RngCore,
     io: impl IO,
     storage: Storage,
-) -> Result<RetCode, AnyError> {
-    match &dkg.cmd {
-        Cmd::CsiRashi(sub) => csi_rashi::run(sub, rng, io, storage),
-    }
+) -> Result<crate::RetCode, crate::AnyError> {
+    unimplemented!()
 }

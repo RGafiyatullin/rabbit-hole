@@ -5,7 +5,6 @@ use structopt::StructOpt;
 use cli_storage::{Storage, Table};
 
 use crate::caps::IO;
-use crate::cli::CliRun;
 use crate::data::key::Key;
 use crate::{AnyError, RetCode};
 
@@ -47,73 +46,63 @@ pub struct CmdKeysList {
     key_id_prefix: String,
 }
 
-impl<I: IO> CliRun<(I, Storage)> for CmdKeys {
-    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
-        match &self.cmd {
-            Sub::List(sub) => sub.run((io, storage)),
-            Sub::Rm(sub) => sub.run((io, storage)),
-            Sub::Add(sub) => sub.run((io, storage)),
-            Sub::Get(sub) => sub.run((io, storage)),
-        }
+pub fn run(keys: &CmdKeys, io: impl IO, storage: Storage) -> Result<RetCode, crate::AnyError> {
+    match &keys.cmd {
+        Sub::List(sub) => run_list(sub, io, storage),
+        Sub::Rm(sub) => run_rm(sub, io, storage),
+        Sub::Add(sub) => run_add(sub, io, storage),
+        Sub::Get(sub) => run_get(sub, io, storage),
     }
 }
 
-impl<I: IO> CliRun<(I, Storage)> for CmdKeysList {
-    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
-        let table = keys_table(&storage)?;
+fn run_list(list: &CmdKeysList, io: impl IO, storage: Storage) -> Result<RetCode, crate::AnyError> {
+    let table = keys_table(&storage)?;
 
-        let mut ids = vec![];
-        for item in table.select(&self.key_id_prefix) {
-            let (id, _key) = item?;
-            ids.push(id);
-        }
+    let mut ids = vec![];
+    for item in table.select(&list.key_id_prefix) {
+        let (id, _key) = item?;
+        ids.push(id);
+    }
 
-        serde_yaml::to_writer(io.stdout(), &ids)?;
+    serde_yaml::to_writer(io.stdout(), &ids)?;
 
+    Ok(0)
+}
+
+fn run_rm(rm: &CmdKeyRm, io: impl IO, storage: Storage) -> Result<RetCode, crate::AnyError> {
+    let table = keys_table(&storage)?;
+
+    if table.remove(&rm.key_id)?.is_some() {
+        writeln!(io.stderr(), "Key removed: {:?}", rm.key_id)?;
         Ok(0)
+    } else {
+        writeln!(io.stderr(), "Key does not exist: {:?}", rm.key_id)?;
+        Ok(1)
     }
 }
 
-impl<I: IO> CliRun<(I, Storage)> for CmdKeyRm {
-    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
-        let table = keys_table(&storage)?;
+fn run_get(get: &CmdKeyGet, io: impl IO, storage: Storage) -> Result<RetCode, crate::AnyError> {
+    let table = keys_table(&storage)?;
 
-        if table.remove(&self.key_id)?.is_some() {
-            writeln!(io.stderr(), "Key removed: {:?}", self.key_id)?;
-            Ok(0)
-        } else {
-            writeln!(io.stderr(), "Key does not exist: {:?}", self.key_id)?;
-            Ok(1)
-        }
+    if let Some(key) = table.get(&get.key_id)? {
+        serde_yaml::to_writer(io.stdout(), &key)?;
+        Ok(0)
+    } else {
+        writeln!(io.stderr(), "Key does not exist: {:?}", get.key_id)?;
+        Ok(1)
     }
 }
 
-impl<I: IO> CliRun<(I, Storage)> for CmdKeyGet {
-    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
-        let table = keys_table(&storage)?;
+fn run_add(add: &CmdKeyAdd, io: impl IO, storage: Storage) -> Result<RetCode, crate::AnyError> {
+    let table = keys_table(&storage)?;
 
-        if let Some(key) = table.get(&self.key_id)? {
-            serde_yaml::to_writer(io.stdout(), &key)?;
-            Ok(0)
-        } else {
-            writeln!(io.stderr(), "Key does not exist: {:?}", self.key_id)?;
-            Ok(1)
-        }
-    }
-}
-
-impl<I: IO> CliRun<(I, Storage)> for CmdKeyAdd {
-    fn run(&self, (io, storage): (I, Storage)) -> Result<RetCode, crate::AnyError> {
-        let table = keys_table(&storage)?;
-
-        if !table.get(&self.key_id)?.is_some() {
-            let key: Key = serde_yaml::from_reader(io.stdin())?;
-            assert!(table.insert(&self.key_id, &key)?.is_none());
-            Ok(0)
-        } else {
-            writeln!(io.stderr(), "The key already exists: {:?}", self.key_id)?;
-            Ok(1)
-        }
+    if !table.get(&add.key_id)?.is_some() {
+        let key: Key = serde_yaml::from_reader(io.stdin())?;
+        assert!(table.insert(&add.key_id, &key)?.is_none());
+        Ok(0)
+    } else {
+        writeln!(io.stderr(), "The key already exists: {:?}", add.key_id)?;
+        Ok(1)
     }
 }
 

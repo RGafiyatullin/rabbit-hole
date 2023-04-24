@@ -12,7 +12,6 @@ use structopt::StructOpt;
 use cli_storage::{Storage, Table};
 
 use crate::caps::IO;
-use crate::cli::CliRun;
 use crate::data::key::{Key, S4Share};
 use crate::{AnyError, RetCode};
 
@@ -63,9 +62,13 @@ struct Session {
     commitment: Vec<Point>,
 }
 
-impl<I: IO, R: RngCore> CliRun<(R, I, Storage)> for CmdCsiRashi {
-    fn run(&self, (rng, io, storage): (R, I, Storage)) -> Result<RetCode, AnyError> {
-        match &self.cmd {
+pub fn run(
+    csi_rashi: &CmdCsiRashi,
+    rng: impl RngCore,
+    io: impl IO,
+    storage: Storage,
+) -> Result<RetCode, AnyError> {
+    match &csi_rashi.cmd {
             Cmd::Reset(sub) => run_reset(io, storage, sub),
             Cmd::Deal(sub) =>
                 specialize_call!(run_deal, (rng, io, storage, sub), sub.curve, [
@@ -76,7 +79,6 @@ impl<I: IO, R: RngCore> CliRun<(R, I, Storage)> for CmdCsiRashi {
             Cmd::Aggregate(sub) =>
                 run_aggregate(io, storage, sub),
         }
-    }
 }
 
 fn run_reset(io: impl IO, storage: Storage, reset: &CmdReset) -> Result<RetCode, AnyError> {
