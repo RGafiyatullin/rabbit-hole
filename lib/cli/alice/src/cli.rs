@@ -11,6 +11,7 @@ use crate::{AnyError, RetCode};
 mod dkg;
 mod keys;
 mod tss;
+mod verify;
 
 #[derive(Debug, StructOpt)]
 pub struct Cli {
@@ -26,6 +27,7 @@ enum Sub {
     Keys(keys::CmdKeys),
     Dkg(dkg::CmdDkg),
     Tss(tss::CmdTss),
+    Verify(verify::CmdVerify),
 }
 
 impl Cli {
@@ -44,12 +46,14 @@ where
     R: RngCore,
     I: IO,
 {
-    let storage = Storage::open(cli.storage_path()?.to_str().ok_or("invalid path")?)?;
+    let open_storage =
+        || Ok::<_, AnyError>(Storage::open(cli.storage_path()?.to_str().ok_or("invalid path")?)?);
 
     match &cli.cmd {
-        Sub::Keys(sub) => keys::run(sub, io, storage),
-        Sub::Dkg(sub) => dkg::run(sub, rng, io, storage),
-        Sub::Tss(sub) => tss::run(sub, rng, io, storage),
+        Sub::Keys(sub) => keys::run(sub, io, open_storage()?),
+        Sub::Dkg(sub) => dkg::run(sub, rng, io, open_storage()?),
+        Sub::Tss(sub) => tss::run(sub, rng, io, open_storage()?),
+        Sub::Verify(sub) => verify::run(sub, io),
     }
 }
 

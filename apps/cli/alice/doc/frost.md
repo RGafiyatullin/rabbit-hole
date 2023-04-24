@@ -1,32 +1,35 @@
+```yaml
+# >>>>
+alice keys get ri-2-of-3:0 | grep -e '^x' -e '^public'
+######
+public_key: ristretto25519:a6a1d84541f4fd2a45bc5c10a2cfca39b1c4079ae67d3d7b400c0134420c626a
+x: ristretto25519:48dda5bbe9171a6656206ec56c595c5834b6cf38c5fe71bcb44fe43833aee90f
 
-# Frost
-
-## Pregenerate Nonce-Pairs for each key-share
-
-```shell
-target/release/alice tss frost nonce -k k0:1 generate --count 1
+# >>>>
+alice tss frost prepare -k ri-2-of-3:0  -c 1
+######
+- - ristretto25519:76eaebf043e55faf510f18196eac6676498ae64d10022a3ff3842f460038fe14
+  - ristretto25519:fe9a57a38bc96e2cd7909eb580556c2abcc9d068ddba23c25b569d33eb344411
 ```
 
 ```yaml
-- cd: 024ff63b310f8566e240653eb9c0150823f8d5f800bb1c76f206813c172955868a
-  ce: 03bb1332fa3fa89d95edc74ae4a0990e63f84831016249bd0aaed653a9c98f2d8b
+# >>>>
+alice keys get ri-2-of-3:1 | grep -e '^x' -e '^public'
+######
+public_key: ristretto25519:a6a1d84541f4fd2a45bc5c10a2cfca39b1c4079ae67d3d7b400c0134420c626a
+x: ristretto25519:b875632ccf606eef2397124e6c2febf24e91a89b43c6bf762c8e9ea61a48e909
+
+# >>>>
+alice tss frost prepare -k ri-2-of-3:1 -c 1
+######
+- - ristretto25519:ce83e69191428a3b6f99b843e1fc88286b6ffa8bd50120924e01780752415210
+  - ristretto25519:0c9e45be759ea359095bff76dfb2b19f00dd64787a0f9d647a5f75d5589a4a73
 ```
 
---- 
-
-```shell
-target/release/alice tss frost nonce -k k0:2  generate --count 1
-```
 
 ```yaml
-- cd: 024e21deeb55761f78a08a3062e8551289092c8694132cf9167d565ecf39e39ced
-  ce: 022a5b0d388314d694baf2bbcdff76548c50182bd94688b75221b4648d2f08c071
-```
-
-## Signing
-
-```yaml
-target/release/alice tss frost sign -k k0:1 <<YAML
+# >>>>
+alice tss frost sign -k ri-2-of-3:0 -h sha3-256 <<YAML
 transcript:
     hash_function: sha3-256
     input:
@@ -34,28 +37,23 @@ transcript:
         - !point    R
         - !text     Hello There!
         - !hex      48656c6c6f20546865726521
-shamir_xs:
-    - 01
-    - 02
-commitments:
-    - cd: 024ff63b310f8566e240653eb9c0150823f8d5f800bb1c76f206813c172955868a
-      ce: 03bb1332fa3fa89d95edc74ae4a0990e63f84831016249bd0aaed653a9c98f2d8b
-    - cd: 024e21deeb55761f78a08a3062e8551289092c8694132cf9167d565ecf39e39ced
-      ce: 022a5b0d388314d694baf2bbcdff76548c50182bd94688b75221b4648d2f08c071
+signers:
+    - - ristretto25519:48dda5bbe9171a6656206ec56c595c5834b6cf38c5fe71bcb44fe43833aee90f
+      - ristretto25519:76eaebf043e55faf510f18196eac6676498ae64d10022a3ff3842f460038fe14
+      - ristretto25519:fe9a57a38bc96e2cd7909eb580556c2abcc9d068ddba23c25b569d33eb344411
+    - - ristretto25519:b875632ccf606eef2397124e6c2febf24e91a89b43c6bf762c8e9ea61a48e909
+      - ristretto25519:ce83e69191428a3b6f99b843e1fc88286b6ffa8bd50120924e01780752415210
+      - ristretto25519:0c9e45be759ea359095bff76dfb2b19f00dd64787a0f9d647a5f75d5589a4a73
 YAML
+######
+y: ristretto25519:fe6440fe06355f5c835faae4689487e7efe50d05984cee603c4757c0c92d080f
+r: ristretto25519:c0404c50461cc3c38b6cd4b9d535f705ffdab52154f39fa6288a3261e702b737
+z: ristretto25519:4bc09a4c77f211a603f7a2921de8811a16fa2265951e500f7d1cf37711a67e04
 ```
 
 ```yaml
-sign:
-  r_i: 0344b07ea83ff47fb45f60630c8ce7d3e062d6d4cd2da2e904b67d64116cf220e6
-  y_i: 0211c961e9e8ed8442e43c0e1a9e83706871cf28cd4ee6a14943462bbe7df80db0
-  z_i: 1f53e7ce25da7790be66e1a8521e77c2fde924270112b7740edc23eb1bf60ca3
-```
-
----
-
-```yaml
-target/release/alice tss frost sign -k k0:2 <<YAML
+# >>>>
+alice tss frost sign -k ri-2-of-3:1 -h sha3-256 <<YAML
 transcript:
     hash_function: sha3-256
     input:
@@ -63,28 +61,23 @@ transcript:
         - !point    R
         - !text     Hello There!
         - !hex      48656c6c6f20546865726521
-shamir_xs:
-    - 01
-    - 02
-commitments:
-    - cd: 024ff63b310f8566e240653eb9c0150823f8d5f800bb1c76f206813c172955868a
-      ce: 03bb1332fa3fa89d95edc74ae4a0990e63f84831016249bd0aaed653a9c98f2d8b
-    - cd: 024e21deeb55761f78a08a3062e8551289092c8694132cf9167d565ecf39e39ced
-      ce: 022a5b0d388314d694baf2bbcdff76548c50182bd94688b75221b4648d2f08c071
+signers:
+    - - ristretto25519:48dda5bbe9171a6656206ec56c595c5834b6cf38c5fe71bcb44fe43833aee90f
+      - ristretto25519:76eaebf043e55faf510f18196eac6676498ae64d10022a3ff3842f460038fe14
+      - ristretto25519:fe9a57a38bc96e2cd7909eb580556c2abcc9d068ddba23c25b569d33eb344411
+    - - ristretto25519:b875632ccf606eef2397124e6c2febf24e91a89b43c6bf762c8e9ea61a48e909
+      - ristretto25519:ce83e69191428a3b6f99b843e1fc88286b6ffa8bd50120924e01780752415210
+      - ristretto25519:0c9e45be759ea359095bff76dfb2b19f00dd64787a0f9d647a5f75d5589a4a73
 YAML
+######
+y: ristretto25519:5ed8d0a6adbc1249ffa9e43bed7dacebe67931db7c3750a95553d55e8b16b67b
+r: ristretto25519:b242b91c6a5baa5a0ff61762d190a0d5c84de3265dc088b9ae13b5cb873d4e56
+z: ristretto25519:1f010c5ba27550f680c0c2f82055cf6df141ffe73e5e37d1eb4ab5d4265ab30a
 ```
 
 ```yaml
-sign:
-  r_i: 02158b69fb3c2471cb70dfbee9748afae65fccc723c2214305484c9aaf527ee5ae
-  y_i: 021e5ddb262b0cc83730ab650141aed8608072a1d7711099ae866f12747cf8f1ca
-  z_i: 8fb687f94ae41bbfa287ecd6ea36d1073c18ed5194686758b75ce264b17a405e
-```
-
-## Aggregate
-
-```yaml
-target/release/alice tss frost aggregate <<YAML
+# >>>>
+alice tss frost aggregate -c ristretto25519 -h sha3-256 <<YAML
 transcript:
     hash_function: sha3-256
     input:
@@ -92,30 +85,62 @@ transcript:
         - !point    R
         - !text     Hello There!
         - !hex      48656c6c6f20546865726521
-shamir_xs:
-    - 01
-    - 02
-commitments:
-    - cd: 024ff63b310f8566e240653eb9c0150823f8d5f800bb1c76f206813c172955868a
-      ce: 03bb1332fa3fa89d95edc74ae4a0990e63f84831016249bd0aaed653a9c98f2d8b
-    - cd: 024e21deeb55761f78a08a3062e8551289092c8694132cf9167d565ecf39e39ced
-      ce: 022a5b0d388314d694baf2bbcdff76548c50182bd94688b75221b4648d2f08c071
 shards:
-    - r_i: 0344b07ea83ff47fb45f60630c8ce7d3e062d6d4cd2da2e904b67d64116cf220e6
-      y_i: 0211c961e9e8ed8442e43c0e1a9e83706871cf28cd4ee6a14943462bbe7df80db0
-      z_i: 1f53e7ce25da7790be66e1a8521e77c2fde924270112b7740edc23eb1bf60ca3
-    - r_i: 02158b69fb3c2471cb70dfbee9748afae65fccc723c2214305484c9aaf527ee5ae
-      y_i: 021e5ddb262b0cc83730ab650141aed8608072a1d7711099ae866f12747cf8f1ca
-      z_i: 8fb687f94ae41bbfa287ecd6ea36d1073c18ed5194686758b75ce264b17a405e
+    ristretto25519:48dda5bbe9171a6656206ec56c595c5834b6cf38c5fe71bcb44fe43833aee90f:
+        c: 
+           - ristretto25519:76eaebf043e55faf510f18196eac6676498ae64d10022a3ff3842f460038fe14
+           - ristretto25519:fe9a57a38bc96e2cd7909eb580556c2abcc9d068ddba23c25b569d33eb344411
+        y: ristretto25519:fe6440fe06355f5c835faae4689487e7efe50d05984cee603c4757c0c92d080f
+        r: ristretto25519:c0404c50461cc3c38b6cd4b9d535f705ffdab52154f39fa6288a3261e702b737
+        z: ristretto25519:4bc09a4c77f211a603f7a2921de8811a16fa2265951e500f7d1cf37711a67e04
+    ristretto25519:b875632ccf606eef2397124e6c2febf24e91a89b43c6bf762c8e9ea61a48e909:
+        c: 
+           - ristretto25519:ce83e69191428a3b6f99b843e1fc88286b6ffa8bd50120924e01780752415210
+           - ristretto25519:0c9e45be759ea359095bff76dfb2b19f00dd64787a0f9d647a5f75d5589a4a73
+        y: ristretto25519:5ed8d0a6adbc1249ffa9e43bed7dacebe67931db7c3750a95553d55e8b16b67b
+        r: ristretto25519:b242b91c6a5baa5a0ff61762d190a0d5c84de3265dc088b9ae13b5cb873d4e56
+        z: ristretto25519:1f010c5ba27550f680c0c2f82055cf6df141ffe73e5e37d1eb4ab5d4265ab30a
 YAML
+######
+y: ristretto25519:a6a1d84541f4fd2a45bc5c10a2cfca39b1c4079ae67d3d7b400c0134420c626a
+r: ristretto25519:6c8896ea71e7b11de45355e7148b4655efbf8b02bd0bb614e32f1082dd564445
+s: ristretto25519:6ac1a6a71968629c84b7658b3e3d5188073c224dd47c87e06867a84c3800320f
 ```
 
 
 ```yaml
+# >>>>
+alice verify schnorr --curve ristretto25519 <<YAML
+transcript:
+    hash_function: sha3-256
+    input:
+        - !point    Y
+        - !point    R
+        - !text     Hello There!
+        - !hex      48656c6c6f20546865726521
 signature:
-  r: 02484ee5475e0139182eb7a8a334111899f2339b4b352b7e8caa23428d8cc64349
-  y: 032189e442f10e6ac256d4e7560b285624e85dfefdd40a308608d4a78b1debb06a
-  z: af0a6fc770be935060eece7f3c5548ca3a021178957b1eccc639064fcd704d01
-```
+  y: ristretto25519:a6a1d84541f4fd2a45bc5c10a2cfca39b1c4079ae67d3d7b400c0134420c626a
+  r: ristretto25519:6c8896ea71e7b11de45355e7148b4655efbf8b02bd0bb614e32f1082dd564445
+  s: ristretto25519:6ac1a6a71968629c84b7658b3e3d5188073c224dd47c87e06867a84c3800320f
+YAML
+######
+true
 
+# >>>>
+alice verify schnorr --curve ristretto25519 <<YAML
+transcript:
+    hash_function: sha3-256
+    input:
+        - !point    Y
+        - !point    R
+        - !text     Somthing, that wasn't signed
+        - !hex      9900aa
+signature:
+  y: ristretto25519:a6a1d84541f4fd2a45bc5c10a2cfca39b1c4079ae67d3d7b400c0134420c626a
+  r: ristretto25519:6c8896ea71e7b11de45355e7148b4655efbf8b02bd0bb614e32f1082dd564445
+  s: ristretto25519:6ac1a6a71968629c84b7658b3e3d5188073c224dd47c87e06867a84c3800320f
+YAML
+######
+false
+```
 

@@ -7,6 +7,9 @@ use crate::caps::IO;
 use crate::cli::RetCode;
 use crate::AnyError;
 
+mod aggregator;
+mod cosigner;
+
 #[derive(Debug, StructOpt)]
 pub struct CmdDkls {}
 
