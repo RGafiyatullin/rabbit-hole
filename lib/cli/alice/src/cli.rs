@@ -10,6 +10,7 @@ use crate::{AnyError, RetCode};
 
 mod dkg;
 mod keys;
+mod sign;
 mod tss;
 mod verify;
 
@@ -28,6 +29,7 @@ enum Sub {
     Dkg(dkg::CmdDkg),
     Tss(tss::CmdTss),
     Verify(verify::CmdVerify),
+    Sign(sign::CmdSign),
 }
 
 impl Cli {
@@ -52,6 +54,7 @@ where
         Sub::Keys(sub) => keys::run(sub, io, open_storage()?),
         Sub::Dkg(sub) => dkg::run(sub, rng, io, open_storage()?),
         Sub::Tss(sub) => tss::run(sub, rng, io, open_storage()?),
+        Sub::Sign(sub) => sign::run(sub, rng, io, open_storage()?),
         Sub::Verify(sub) => verify::run(sub, io),
     }
 }
