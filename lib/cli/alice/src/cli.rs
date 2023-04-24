@@ -46,8 +46,7 @@ where
     R: RngCore,
     I: IO,
 {
-    let open_storage =
-        || Ok::<_, AnyError>(Storage::open(cli.storage_path()?.to_str().ok_or("invalid path")?)?);
+    let open_storage = || Storage::open(cli.storage_path()?.to_str().ok_or("invalid path")?);
 
     match &cli.cmd {
         Sub::Keys(sub) => keys::run(sub, io, open_storage()?),

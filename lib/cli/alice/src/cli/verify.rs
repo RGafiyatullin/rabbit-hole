@@ -1,11 +1,8 @@
 use common_interop::curve_select::CurveSelect;
-use common_interop::hash_function_select::HashFunctionSelect;
 use common_interop::transcript::Transcript;
 use common_interop::types::{Point, Scalar};
-use digest::Digest;
 use ff::PrimeField;
-use group::{Curve, Group, GroupEncoding};
-use k256::elliptic_curve::point::AffineCoordinates;
+use group::{Group, GroupEncoding};
 use serde::Deserialize;
 use structopt::StructOpt;
 
@@ -19,13 +16,13 @@ pub enum CmdVerify {
 }
 
 #[derive(Debug, StructOpt)]
-struct CmdVerifySchnorr {
+pub struct CmdVerifySchnorr {
     #[structopt(long, short)]
     curve: CurveSelect,
 }
 
 // #[derive(Debug, StructOpt)]
-// struct CmdVerifyEcdsa {
+// pub struct CmdVerifyEcdsa {
 //     #[structopt(long, short)]
 //     curve: CurveSelect,
 // }
