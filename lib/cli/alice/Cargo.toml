@@ -18,6 +18,7 @@ securestore = {workspace = true}
 serde = {workspace = true, features = ["derive"]}
 serde_json = {workspace = true}
 serde_yaml = {workspace = true}
+specialize-call = {workspace = true}
 structopt = {workspace = true}
 tokio = {workspace = true, features = ["rt", "macros", "fs"]}
 tracing = {workspace = true}
@@ -36,7 +37,7 @@ utils = {workspace = true}
 
 common-logging = {workspace = true}
 common-interop = {workspace = true}
-common-macros = {workspace = true}
+# common-macros = {workspace = true}
 
 cli-storage = {workspace = true}
 

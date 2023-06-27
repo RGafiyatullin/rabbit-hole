@@ -4,6 +4,7 @@ use common_interop::curve_select::CurveSelect;
 use common_interop::types::Scalar;
 use ff::PrimeField;
 use rand::RngCore;
+use specialize_call::specialize_call;
 use structopt::StructOpt;
 
 use cli_storage::{Storage, Table};

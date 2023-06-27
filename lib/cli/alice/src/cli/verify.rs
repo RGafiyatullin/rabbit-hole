@@ -4,6 +4,7 @@ use common_interop::types::{Point, Scalar};
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use serde::Deserialize;
+use specialize_call::specialize_call;
 use structopt::StructOpt;
 
 use crate::caps::IO;

@@ -4,6 +4,7 @@ use common_interop::transcript::{Input, KnownPoint, Transcript};
 use digest::Digest;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
+use specialize_call::specialize_call;
 
 pub fn produce_challenge<F, G>(t: &Transcript, y: &G, r: &G) -> Result<F, AnyError>
 where

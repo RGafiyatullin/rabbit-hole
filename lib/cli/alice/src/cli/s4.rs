@@ -3,6 +3,7 @@ use std::io::Write;
 use ff::PrimeField;
 use group::{Group, GroupEncoding};
 use rand::RngCore;
+use specialize_call::specialize_call;
 use structopt::StructOpt;
 
 use cli_storage::{Storage, Table};
