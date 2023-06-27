@@ -4,6 +4,7 @@ use digest::Digest;
 use ff::PrimeField;
 use serde::Deserialize;
 use serde_json::json;
+use specialize_call::specialize_call;
 
 use common_interop::curve_select::CurveSelect;
 use common_interop::types::{Point, Scalar};
